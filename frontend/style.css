@@ -544,3 +544,14 @@ form > button:disabled {
     padding: 22px;
   }
 }
+.whatsapp-button {
+  border-color: #20b95b;
+  background: #20b95b;
+  color: #ffffff;
+}
+
+.whatsapp-button:hover {
+  border-color: #128a40;
+  background: #128a40;
+  color: #ffffff;
+}
