@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VyaparMitra — WhatsApp Growth Assistant</title>
+  <meta
+    name="description"
+    content="Hindi aur Hinglish me local business ke liye WhatsApp messages, offers aur marketing campaigns banaiye."
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Hind:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero">
+      <div class="brand">
+        <div class="brand-icon">✦</div>
+        <div>
+          <p class="eyebrow">HINDI BUSINESS MARKETING</p>
+          <h1>VyaparMitra <span>AI</span></h1>
+        </div>
+      </div>
+
+      <div class="hero-copy">
+        <p class="pill">WhatsApp-first growth assistant</p>
+        <h2>Apne local business ke liye offers aur customer messages 1 minute me banaiye.</h2>
+        <p>
+          Hindi, Hinglish ya English me branded campaigns banaiye—WhatsApp,
+          Status aur social media ke liye.
+        </p>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <div class="form-card">
+        <div class="section-heading">
+          <p class="eyebrow">STEP 1</p>
+          <h3>Business details</h3>
+          <p>Campaign generate karne ke liye apne business ki details bharein.</p>
+        </div>
+
+        <form id="campaignForm">
+          <div class="input-grid">
+            <label>
+              Business name
+              <input
+                id="businessName"
+                type="text"
+                placeholder="e.g. Glow Beauty Salon"
+                required
+              />
+            </label>
+
+            <label>
+              Business category
+              <select id="category" required>
+                <option value="Salon">Salon / Beauty Parlour</option>
+                <option value="Boutique">Boutique / Clothing Shop</option>
+                <option value="Coaching Institute">Coaching Institute</option>
+                <option value="Restaurant or Cafe">Restaurant / Cafe</option>
+                <option value="Clinic">Clinic / Doctor</option>
+                <option value="Gym">Gym / Fitness Centre</option>
+                <option value="Property Dealer">Property Dealer</option>
+                <option value="Local Shop">Local Shop</option>
+                <option value="Other">Other</option>
+              </select>
+            </label>
+
+            <label>
+              City / locality
+              <input
+                id="city"
+                type="text"
+                placeholder="e.g. Lanka, Varanasi"
+                required
+              />
+            </label>
+
+            <label>
+              WhatsApp number
+              <input
+                id="phone"
+                type="tel"
+                placeholder="e.g. 9876543210"
+                required
+              />
+            </label>
+
+            <label>
+              Language
+              <select id="language">
+                <option value="Hindi">Hindi</option>
+                <option value="Hinglish">Hinglish</option>
+                <option value="English">English</option>
+              </select>
+            </label>
+
+            <label>
+              Campaign type
+              <select id="campaignType">
+                <option value="Daily Offer">Daily Offer</option>
+                <option value="Festival Greeting">Festival Greeting</option>
+                <option value="New Arrival">New Arrival</option>
+                <option value="Customer Follow-up">Customer Follow-up</option>
+                <option value="Appointment Reminder">Appointment Reminder</option>
+                <option value="Google Review Request">Google Review Request</option>
+                <option value="Fee or Payment Reminder">Fee / Payment Reminder</option>
+              </select>
+            </label>
+          </div>
+
+          <label class="full-width">
+            Offer / campaign details
+            <textarea
+              id="offer"
+              rows="5"
+              placeholder="e.g. Bridal makeup package par 15% discount. Wedding season ke liye limited bookings."
+              required
+            ></textarea>
+          </label>
+
+          <button id="generateButton" type="submit">
+            <span>✨ AI Campaign Generate Karein</span>
+          </button>
+
+          <p id="formError" class="form-error" role="alert"></p>
+        </form>
+      </div>
+
+      <div class="result-area">
+        <div id="emptyState" class="empty-state">
+          <div class="empty-icon">✦</div>
+          <h3>Aapka campaign yahan dikhega</h3>
+          <p>Left side details bhariye aur VyaparMitra AI campaign banayega.</p>
+        </div>
+
+        <div id="loadingState" class="loading-state hidden">
+          <div class="loader"></div>
+          <h3>Campaign ban raha hai…</h3>
+          <p>Hindi marketing copy aur WhatsApp message taiyar kiya ja raha hai.</p>
+        </div>
+
+        <div id="resultState" class="hidden">
+          <div class="result-topbar">
+            <div>
+              <p class="eyebrow">STEP 2</p>
+              <h3>Ready campaign</h3>
+            </div>
+            <button id="newCampaignButton" class="secondary-button" type="button">
+              + Naya campaign
+            </button>
+          </div>
+
+          <article class="poster-card">
+            <p class="poster-brand" id="posterBusinessName">Your Business</p>
+            <p class="poster-type" id="posterCampaignType">SPECIAL OFFER</p>
+            <h2 id="posterHeadline">Aapka offer headline</h2>
+            <p id="posterCity">Your City</p>
+            <div class="poster-footer">
+              <span>WhatsApp karein</span>
+              <strong id="posterPhone">0000000000</strong>
+            </div>
+          </article>
+
+          <div class="action-row">
+            <button class="action-button" type="button" data-copy-target="whatsappMessage">
+              Copy WhatsApp Message
+            </button>
+            <button class="action-button" type="button" data-copy-target="socialCaption">
+              Copy Social Caption
+            </button>
+          </div>
+
+          <div class="content-card">
+            <div class="content-card-header">
+              <h4>WhatsApp message</h4>
+              <button class="copy-mini" type="button" data-copy-target="whatsappMessage">
+                Copy
+              </button>
+            </div>
+            <p id="whatsappMessage"></p>
+          </div>
+
+          <div class="content-card">
+            <div class="content-card-header">
+              <h4>WhatsApp Status</h4>
+              <button class="copy-mini" type="button" data-copy-target="statusText">
+                Copy
+              </button>
+            </div>
+            <p id="statusText"></p>
+          </div>
+
+          <div class="content-card">
+            <div class="content-card-header">
+              <h4>Social caption</h4>
+              <button class="copy-mini" type="button" data-copy-target="socialCaption">
+                Copy
+              </button>
+            </div>
+            <p id="socialCaption"></p>
+            <div id="hashtags" class="hashtags"></div>
+          </div>
+
+          <div class="cta-card">
+            <span>Suggested action</span>
+            <strong id="callToAction"></strong>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast">Copied successfully</div>
+  <script src="app.js"></script>
+</body>
+</html>
