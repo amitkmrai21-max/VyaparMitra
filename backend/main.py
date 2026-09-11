@@ -1,0 +1,155 @@
+import json
+import os
+from typing import Literal
+
+import httpx
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
+
+load_dotenv()
+
+app = FastAPI(
+    title="VyaparMitra AI API",
+    version="0.1.0",
+    description="Hindi/Hinglish WhatsApp marketing assistant for local businesses",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
+
+
+class CampaignRequest(BaseModel):
+    business_name: str = Field(min_length=2, max_length=100)
+    category: str = Field(min_length=2, max_length=80)
+    city: str = Field(min_length=2, max_length=80)
+    phone: str = Field(min_length=5, max_length=30)
+    language: Literal["Hindi", "Hinglish", "English"] = "Hindi"
+    campaign_type: str = Field(min_length=2, max_length=100)
+    offer: str = Field(min_length=3, max_length=500)
+
+
+class CampaignResponse(BaseModel):
+    headline: str
+    whatsapp_message: str
+    status_text: str
+    social_caption: str
+    hashtags: list[str]
+    call_to_action: str
+
+
+def build_prompt(data: CampaignRequest) -> str:
+    return f"""
+You are an expert marketing copywriter for small local businesses in India.
+
+Create a short, trustworthy, practical marketing campaign. Do not make false,
+misleading, medical, financial, or guaranteed-result claims. Use the requested
+language naturally. Keep the message suitable for WhatsApp and local customers.
+
+Business name: {data.business_name}
+Business category: {data.category}
+City/locality: {data.city}
+Phone/WhatsApp: {data.phone}
+Language: {data.language}
+Campaign type: {data.campaign_type}
+Offer or details: {data.offer}
+
+Return ONLY valid JSON with this exact schema:
+{{
+  "headline": "short poster headline, maximum 12 words",
+  "whatsapp_message": "friendly promotional WhatsApp message, maximum 90 words",
+  "status_text": "short WhatsApp status text, maximum 30 words",
+  "social_caption": "Instagram/Facebook caption, maximum 120 words",
+  "hashtags": ["#tag1", "#tag2", "#tag3", "#tag4", "#tag5"],
+  "call_to_action": "short action line including phone or WhatsApp direction"
+}}
+""".strip()
+
+
+async def generate_with_groq(prompt: str) -> dict:
+    if not GROQ_API_KEY:
+        raise HTTPException(
+            status_code=500,
+            detail="GROQ_API_KEY server environment variable is missing.",
+        )
+
+    payload = {
+        "model": GROQ_MODEL,
+        "messages": [
+            {
+                "role": "system",
+                "content": "You return only valid JSON. Never wrap JSON in Markdown.",
+            },
+            {"role": "user", "content": prompt},
+        ],
+        "temperature": 0.7,
+        "response_format": {"type": "json_object"},
+    }
+
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json",
+    }
+
+    async with httpx.AsyncClient(timeout=45) as client:
+        response = await client.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers=headers,
+            json=payload,
+        )
+
+    if response.status_code >= 400:
+        raise HTTPException(
+            status_code=502,
+            detail=f"AI provider error: {response.text}",
+        )
+
+    try:
+        content = response.json()["choices"][0]["message"]["content"]
+        return json.loads(content)
+    except (KeyError, IndexError, json.JSONDecodeError) as error:
+        raise HTTPException(
+            status_code=502,
+            detail="AI returned an invalid campaign response.",
+        ) from error
+
+
+@app.get("/")
+def home():
+    return {
+        "status": "online",
+        "app": "VyaparMitra AI API",
+        "docs": "/docs",
+    }
+
+
+@app.get("/health")
+def health():
+    return {
+        "status": "ok",
+        "ai_configured": bool(GROQ_API_KEY),
+        "model": GROQ_MODEL,
+    }
+
+
+@app.post("/api/generate-campaign", response_model=CampaignResponse)
+async def generate_campaign(data: CampaignRequest):
+    prompt = build_prompt(data)
+    result = await generate_with_groq(prompt)
+
+    try:
+        return CampaignResponse(**result)
+    except Exception as error:
+        raise HTTPException(
+            status_code=502,
+            detail="AI response did not match the required campaign format.",
+        ) from error
