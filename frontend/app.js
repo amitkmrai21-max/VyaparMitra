@@ -7,6 +7,7 @@ const emptyState = document.getElementById("emptyState");
 const loadingState = document.getElementById("loadingState");
 const resultState = document.getElementById("resultState");
 const toast = document.getElementById("toast");
+const shareWhatsAppButton = document.getElementById("shareWhatsAppButton");
 
 function showState(state) {
   emptyState.classList.add("hidden");
@@ -112,6 +113,18 @@ document.querySelectorAll("[data-copy-target]").forEach((button) => {
       showToast("Copy nahi hua. Text ko manually select karke copy karein.");
     }
   });
+});
+
+shareWhatsAppButton.addEventListener("click", () => {
+  const message = document.getElementById("whatsappMessage").textContent.trim();
+
+  if (!message) {
+    showToast("Pehle AI campaign generate karein.");
+    return;
+  }
+
+  const whatsappShareUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+  window.open(whatsappShareUrl, "_blank", "noopener,noreferrer");
 });
 
 document.getElementById("newCampaignButton").addEventListener("click", () => {
