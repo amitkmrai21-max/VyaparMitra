@@ -28,229 +28,255 @@
         </span>
       </a>
 
-      <div id="guestActions" class="account-actions">
-  <button id="loginButton" class="text-button" type="button">Login</button>
-  <button id="signupButton" class="primary-small-button" type="button">
-    Sign up
-  </button>
-</div>
+      <div id="guestActions" class="account-card">
+        <button id="loginButton" class="text-button" type="button">Login</button>
+        <button id="signupButton" class="primary-small-button" type="button">
+          Sign up
+        </button>
+      </div>
 
-      <div id="userActions" class="account-actions hidden">
+      <div id="userActions" class="account-card hidden">
         <span id="userGreeting" class="user-greeting"></span>
         <button id="logoutButton" class="text-button" type="button">Logout</button>
       </div>
     </header>
 
-    <section class="hero">
-      <div class="hero-copy">
-        <p class="pill">WhatsApp-first growth assistant</p>
-        <h1>Apne local business ke liye offers aur customer messages 1 minute me banaiye.</h1>
+    <!-- Guest users see only this locked screen. -->
+    <section id="guestGate" class="guest-gate">
+      <div class="guest-gate-card">
+        <div class="guest-gate-icon">✦</div>
+        <p class="eyebrow">VYAPARMITRA ACCOUNT</p>
+        <h1>AI marketing shuru karne ke liye pehle account banaiye.</h1>
         <p>
-          Hindi, Hinglish ya English me branded campaigns banaiye—WhatsApp,
-          Status aur social media ke liye.
+          Sign up karke apna business profile save karein. Uske baad aap AI
+          campaigns generate kar sakenge.
         </p>
-      </div>
-
-      <aside id="accountNotice" class="account-notice">
-        <p class="eyebrow">FREE ACCOUNT</p>
-        <h2>Campaigns save kijiye</h2>
-        <p>Free account banakar apna business profile save karein aur har baar details dobara na bharein.</p>
-        <button id="noticeSignupButton" type="button">Sign up</button>
-      </aside>
-    </section>
-
-    <section id="businessBanner" class="business-banner hidden">
-      <div>
-        <p class="eyebrow">YOUR BUSINESS PROFILE</p>
-        <strong id="savedBusinessName"></strong>
-        <span id="savedBusinessInfo"></span>
-      </div>
-      <button id="editBusinessButton" class="secondary-button" type="button">
-        Business details edit karein
-      </button>
-    </section>
-
-    <section class="workspace">
-      <div class="form-card">
-        <div class="section-heading">
-          <p class="eyebrow">STEP 1</p>
-          <h3>Business details</h3>
-          <p>Campaign generate karne ke liye apne business ki details bharein.</p>
-        </div>
-
-        <form id="campaignForm">
-          <div class="input-grid">
-            <label>
-              Business name
-              <input
-                id="businessName"
-                type="text"
-                placeholder="e.g. Glow Beauty Salon"
-                required
-              />
-            </label>
-
-            <label>
-              Business category
-              <select id="category" required>
-                <option value="Salon">Salon / Beauty Parlour</option>
-                <option value="Boutique">Boutique / Clothing Shop</option>
-                <option value="Coaching Institute">Coaching Institute</option>
-                <option value="Restaurant or Cafe">Restaurant / Cafe</option>
-                <option value="Clinic">Clinic / Doctor</option>
-                <option value="Gym">Gym / Fitness Centre</option>
-                <option value="Property Dealer">Property Dealer</option>
-                <option value="Local Shop">Local Shop</option>
-                <option value="Other">Other</option>
-              </select>
-            </label>
-
-            <label>
-              City / locality
-              <input
-                id="city"
-                type="text"
-                placeholder="e.g. Lanka, Varanasi"
-                required
-              />
-            </label>
-
-            <label>
-              WhatsApp number
-              <input
-                id="phone"
-                type="tel"
-                placeholder="e.g. 9876543210"
-                required
-              />
-            </label>
-
-            <label>
-              Language
-              <select id="language">
-                <option value="Hindi">Hindi</option>
-                <option value="Hinglish">Hinglish</option>
-                <option value="English">English</option>
-              </select>
-            </label>
-
-            <label>
-              Campaign type
-              <select id="campaignType">
-                <option value="Daily Offer">Daily Offer</option>
-                <option value="Festival Greeting">Festival Greeting</option>
-                <option value="New Arrival">New Arrival</option>
-                <option value="Customer Follow-up">Customer Follow-up</option>
-                <option value="Appointment Reminder">Appointment Reminder</option>
-                <option value="Google Review Request">Google Review Request</option>
-                <option value="Fee or Payment Reminder">Fee / Payment Reminder</option>
-              </select>
-            </label>
-          </div>
-
-          <label class="full-width">
-            Offer / campaign details
-            <textarea
-              id="offer"
-              rows="5"
-              placeholder="e.g. Bridal makeup package par 15% discount. Wedding season ke liye limited bookings."
-              required
-            ></textarea>
-          </label>
-
-          <button id="generateButton" type="submit">
-            <span>✨ AI Campaign Generate Karein</span>
+        <div class="guest-gate-actions">
+          <button id="gateLoginButton" class="text-button" type="button">
+            Login
           </button>
-
-          <p id="formError" class="form-error" role="alert"></p>
-        </form>
-      </div>
-
-      <div class="result-area">
-        <div id="emptyState" class="empty-state">
-          <div class="empty-icon">✦</div>
-          <h3>Aapka campaign yahan dikhega</h3>
-          <p>Left side details bhariye aur VyaparMitra AI campaign banayega.</p>
-        </div>
-
-        <div id="loadingState" class="loading-state hidden">
-          <div class="loader"></div>
-          <h3>Campaign ban raha hai…</h3>
-          <p>Hindi marketing copy aur WhatsApp message taiyar kiya ja raha hai.</p>
-        </div>
-
-        <div id="resultState" class="hidden">
-          <div class="result-topbar">
-            <div>
-              <p class="eyebrow">STEP 2</p>
-              <h3>Ready campaign</h3>
-            </div>
-            <button id="newCampaignButton" class="secondary-button" type="button">
-              + Naya campaign
-            </button>
-          </div>
-
-          <article class="poster-card">
-            <p class="poster-brand" id="posterBusinessName">Your Business</p>
-            <p class="poster-type" id="posterCampaignType">SPECIAL OFFER</p>
-            <h2 id="posterHeadline">Aapka offer headline</h2>
-            <p id="posterCity">Your City</p>
-            <div class="poster-footer">
-              <span>WhatsApp karein</span>
-              <strong id="posterPhone">0000000000</strong>
-            </div>
-          </article>
-
-          <div class="action-row">
-            <button class="action-button" type="button" data-copy-target="whatsappMessage">
-              Copy WhatsApp Message
-            </button>
-            <button id="shareWhatsAppButton" class="action-button whatsapp-button" type="button">
-              WhatsApp me Share Karein
-            </button>
-            <button class="action-button" type="button" data-copy-target="socialCaption">
-              Copy Social Caption
-            </button>
-          </div>
-
-          <div class="content-card">
-            <div class="content-card-header">
-              <h4>WhatsApp message</h4>
-              <button class="copy-mini" type="button" data-copy-target="whatsappMessage">
-                Copy
-              </button>
-            </div>
-            <p id="whatsappMessage"></p>
-          </div>
-
-          <div class="content-card">
-            <div class="content-card-header">
-              <h4>WhatsApp Status</h4>
-              <button class="copy-mini" type="button" data-copy-target="statusText">
-                Copy
-              </button>
-            </div>
-            <p id="statusText"></p>
-          </div>
-
-          <div class="content-card">
-            <div class="content-card-header">
-              <h4>Social caption</h4>
-              <button class="copy-mini" type="button" data-copy-target="socialCaption">
-                Copy
-              </button>
-            </div>
-            <p id="socialCaption"></p>
-            <div id="hashtags" class="hashtags"></div>
-          </div>
-
-          <div class="cta-card">
-            <span>Suggested action</span>
-            <strong id="callToAction"></strong>
-          </div>
+          <button id="gateSignupButton" class="primary-small-button" type="button">
+            Sign up
+          </button>
         </div>
       </div>
     </section>
+
+    <!-- Only shown after Login + business-profile setup. -->
+    <div id="appContent" class="hidden">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="pill">WhatsApp-first growth assistant</p>
+          <h1>Apne local business ke liye offers aur customer messages 1 minute me banaiye.</h1>
+          <p>
+            Hindi, Hinglish ya English me branded campaigns banaiye—WhatsApp,
+            Status aur social media ke liye.
+          </p>
+        </div>
+
+        <aside class="account-notice">
+          <p class="eyebrow">YOUR ACCOUNT</p>
+          <h2>Campaigns save honge</h2>
+          <p>
+            Aapke generated campaigns securely saved rahenge aur future me
+            customer tools bhi yahin milenge.
+          </p>
+        </aside>
+      </section>
+
+      <section id="businessBanner" class="business-banner hidden">
+        <div>
+          <p class="eyebrow">YOUR BUSINESS PROFILE</p>
+          <strong id="savedBusinessName"></strong>
+          <span id="savedBusinessInfo"></span>
+        </div>
+        <button id="editBusinessButton" class="secondary-button" type="button">
+          Business details edit karein
+        </button>
+      </section>
+
+      <section class="workspace">
+        <div class="form-card">
+          <div class="section-heading">
+            <p class="eyebrow">STEP 1</p>
+            <h3>Business details</h3>
+            <p>Campaign generate karne ke liye apne business ki details bharein.</p>
+          </div>
+
+          <form id="campaignForm">
+            <div class="input-grid">
+              <label>
+                Business name
+                <input
+                  id="businessName"
+                  type="text"
+                  placeholder="e.g. Glow Beauty Salon"
+                  required
+                />
+              </label>
+
+              <label>
+                Business category
+                <select id="category" required>
+                  <option value="Salon">Salon / Beauty Parlour</option>
+                  <option value="Boutique">Boutique / Clothing Shop</option>
+                  <option value="Coaching Institute">Coaching Institute</option>
+                  <option value="Restaurant or Cafe">Restaurant / Cafe</option>
+                  <option value="Clinic">Clinic / Doctor</option>
+                  <option value="Gym">Gym / Fitness Centre</option>
+                  <option value="Property Dealer">Property Dealer</option>
+                  <option value="Local Shop">Local Shop</option>
+                  <option value="Other">Other</option>
+                </select>
+              </label>
+
+              <label>
+                City / locality
+                <input
+                  id="city"
+                  type="text"
+                  placeholder="e.g. Lanka, Varanasi"
+                  required
+                />
+              </label>
+
+              <label>
+                WhatsApp number
+                <input
+                  id="phone"
+                  type="tel"
+                  placeholder="e.g. 9876543210"
+                  required
+                />
+              </label>
+
+              <label>
+                Language
+                <select id="language">
+                  <option value="Hindi">Hindi</option>
+                  <option value="Hinglish">Hinglish</option>
+                  <option value="English">English</option>
+                </select>
+              </label>
+
+              <label>
+                Campaign type
+                <select id="campaignType">
+                  <option value="Daily Offer">Daily Offer</option>
+                  <option value="Festival Greeting">Festival Greeting</option>
+                  <option value="New Arrival">New Arrival</option>
+                  <option value="Customer Follow-up">Customer Follow-up</option>
+                  <option value="Appointment Reminder">Appointment Reminder</option>
+                  <option value="Google Review Request">Google Review Request</option>
+                  <option value="Fee or Payment Reminder">Fee / Payment Reminder</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="full-width">
+              Offer / campaign details
+              <textarea
+                id="offer"
+                rows="5"
+                placeholder="e.g. Bridal makeup package par 15% discount. Wedding season ke liye limited bookings."
+                required
+              ></textarea>
+            </label>
+
+            <button id="generateButton" type="submit">
+              <span>✨ AI Campaign Generate Karein</span>
+            </button>
+
+            <p id="formError" class="form-error" role="alert"></p>
+          </form>
+        </div>
+
+        <div class="result-area">
+          <div id="emptyState" class="empty-state">
+            <div class="empty-icon">✦</div>
+            <h3>Aapka campaign yahan dikhega</h3>
+            <p>Left side details bhariye aur VyaparMitra AI campaign banayega.</p>
+          </div>
+
+          <div id="loadingState" class="loading-state hidden">
+            <div class="loader"></div>
+            <h3>Campaign ban raha hai…</h3>
+            <p>Hindi marketing copy aur WhatsApp message taiyar kiya ja raha hai.</p>
+          </div>
+
+          <div id="resultState" class="hidden">
+            <div class="result-topbar">
+              <div>
+                <p class="eyebrow">STEP 2</p>
+                <h3>Ready campaign</h3>
+              </div>
+              <button id="newCampaignButton" class="secondary-button" type="button">
+                + Naya campaign
+              </button>
+            </div>
+
+            <article class="poster-card">
+              <p class="poster-brand" id="posterBusinessName">Your Business</p>
+              <p class="poster-type" id="posterCampaignType">SPECIAL OFFER</p>
+              <h2 id="posterHeadline">Aapka offer headline</h2>
+              <p id="posterCity">Your City</p>
+              <div class="poster-footer">
+                <span>WhatsApp karein</span>
+                <strong id="posterPhone">0000000000</strong>
+              </div>
+            </article>
+
+            <div class="action-row">
+              <button class="action-button" type="button" data-copy-target="whatsappMessage">
+                Copy WhatsApp Message
+              </button>
+              <button id="shareWhatsAppButton" class="action-button whatsapp-button" type="button">
+                WhatsApp me Share Karein
+              </button>
+              <button class="action-button" type="button" data-copy-target="socialCaption">
+                Copy Social Caption
+              </button>
+            </div>
+
+            <div class="content-card">
+              <div class="content-card-header">
+                <h4>WhatsApp message</h4>
+                <button class="copy-mini" type="button" data-copy-target="whatsappMessage">
+                  Copy
+                </button>
+              </div>
+              <p id="whatsappMessage"></p>
+            </div>
+
+            <div class="content-card">
+              <div class="content-card-header">
+                <h4>WhatsApp Status</h4>
+                <button class="copy-mini" type="button" data-copy-target="statusText">
+                  Copy
+                </button>
+              </div>
+              <p id="statusText"></p>
+            </div>
+
+            <div class="content-card">
+              <div class="content-card-header">
+                <h4>Social caption</h4>
+                <button class="copy-mini" type="button" data-copy-target="socialCaption">
+                  Copy
+                </button>
+              </div>
+              <p id="socialCaption"></p>
+              <div id="hashtags" class="hashtags"></div>
+            </div>
+
+            <div class="cta-card">
+              <span>Suggested action</span>
+              <strong id="callToAction"></strong>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
   </main>
 
   <div id="authModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
@@ -258,7 +284,9 @@
       <button class="modal-close" type="button" data-close-modal aria-label="Close">×</button>
       <p id="authEyebrow" class="eyebrow">WELCOME TO VYAPARMITRA</p>
       <h2 id="authModalTitle">Login karein</h2>
-      <p id="authDescription" class="modal-description">Apna saved business profile aur campaigns access karein.</p>
+      <p id="authDescription" class="modal-description">
+        Apna saved business profile aur campaigns access karein.
+      </p>
 
       <form id="authForm" class="auth-form">
         <label id="authNameWrap" class="hidden">
@@ -284,14 +312,14 @@
         </label>
 
         <button id="authSubmitButton" type="submit">
-          <span>Login karein</span>
+          <span>Login</span>
         </button>
         <p id="authError" class="form-error" role="alert"></p>
       </form>
 
       <p class="auth-switch">
         <span id="authSwitchText">Naya account chahiye?</span>
-       <button id="authSwitchButton" class="link-button" type="button">Sign up</button>
+        <button id="authSwitchButton" class="link-button" type="button">Sign up</button>
       </p>
     </div>
   </div>
@@ -301,7 +329,9 @@
       <button id="businessCloseButton" class="modal-close hidden" type="button" aria-label="Close">×</button>
       <p class="eyebrow">STEP 1 OF 1</p>
       <h2 id="businessModalTitle">Apna business setup karein</h2>
-      <p class="modal-description">Ye details future campaigns me automatically fill ho jayengi.</p>
+      <p class="modal-description">
+        Ye details future campaigns me automatically fill ho jayengi.
+      </p>
 
       <form id="businessForm" class="auth-form">
         <label>
