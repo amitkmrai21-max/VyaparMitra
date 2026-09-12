@@ -30,6 +30,8 @@ const loginButton = document.getElementById("loginButton");
 const signupButton = document.getElementById("signupButton");
 const guestGate = document.getElementById("guestGate");
 const appContent = document.getElementById("appContent");
+const featureSlides = Array.from(document.querySelectorAll(".feature-slide"));
+const sliderDots = Array.from(document.querySelectorAll(".slider-dot"));
 
 const authModal = document.getElementById("authModal");
 const authForm = document.getElementById("authForm");
@@ -472,6 +474,43 @@ async function handleCampaignSubmit(event) {
       "✨ AI Campaign Generate Karein";
   }
 }
+function setupFeatureSlider() {
+  if (!featureSlides.length || !sliderDots.length) {
+    return;
+  }
+
+  let activeIndex = 0;
+  let sliderTimer;
+
+  function showSlide(index) {
+    activeIndex = (index + featureSlides.length) % featureSlides.length;
+
+    featureSlides.forEach((slide, slideIndex) => {
+      slide.classList.toggle("active", slideIndex === activeIndex);
+    });
+
+    sliderDots.forEach((dot, dotIndex) => {
+      dot.classList.toggle("active", dotIndex === activeIndex);
+    });
+  }
+
+  function startAutoSlide() {
+    window.clearInterval(sliderTimer);
+    sliderTimer = window.setInterval(() => {
+      showSlide(activeIndex + 1);
+    }, 5000);
+  }
+
+  sliderDots.forEach((dot, index) => {
+    dot.addEventListener("click", () => {
+      showSlide(index);
+      startAutoSlide();
+    });
+  });
+
+  showSlide(0);
+  startAutoSlide();
+}
 
 function setupEventListeners() {
   form.addEventListener("submit", handleCampaignSubmit);
@@ -538,6 +577,7 @@ function setupEventListeners() {
 
 async function initializeApp() {
   setupEventListeners();
+  setupFeatureSlider();
   renderUserState();
 
   const { data, error } = await supabaseClient.auth.getSession();
