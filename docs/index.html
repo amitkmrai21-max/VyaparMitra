@@ -16,25 +16,58 @@
   />
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
   <main class="page-shell">
-    <section class="hero">
-      <div class="brand">
-        <div class="brand-icon">✦</div>
-        <div>
-          <p class="eyebrow">HINDI BUSINESS MARKETING</p>
-          <h1>VyaparMitra <span>AI</span></h1>
-        </div>
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="VyaparMitra home">
+        <span class="brand-icon">✦</span>
+        <span>
+          <span class="eyebrow">HINDI BUSINESS MARKETING</span>
+          <span class="brand-title">VyaparMitra <em>AI</em></span>
+        </span>
+      </a>
+
+      <div id="guestActions" class="account-actions">
+        <button id="loginButton" class="text-button" type="button">Login</button>
+        <button id="signupButton" class="primary-small-button" type="button">
+          Free account banaiye
+        </button>
       </div>
 
+      <div id="userActions" class="account-actions hidden">
+        <span id="userGreeting" class="user-greeting"></span>
+        <button id="logoutButton" class="text-button" type="button">Logout</button>
+      </div>
+    </header>
+
+    <section class="hero">
       <div class="hero-copy">
         <p class="pill">WhatsApp-first growth assistant</p>
-        <h2>Apne local business ke liye offers aur customer messages 1 minute me banaiye.</h2>
+        <h1>Apne local business ke liye offers aur customer messages 1 minute me banaiye.</h1>
         <p>
           Hindi, Hinglish ya English me branded campaigns banaiye—WhatsApp,
           Status aur social media ke liye.
         </p>
       </div>
+
+      <aside id="accountNotice" class="account-notice">
+        <p class="eyebrow">FREE ACCOUNT</p>
+        <h2>Campaigns save kijiye</h2>
+        <p>Free account banakar apna business profile save karein aur har baar details dobara na bharein.</p>
+        <button id="noticeSignupButton" type="button">Free account banaiye</button>
+      </aside>
+    </section>
+
+    <section id="businessBanner" class="business-banner hidden">
+      <div>
+        <p class="eyebrow">YOUR BUSINESS PROFILE</p>
+        <strong id="savedBusinessName"></strong>
+        <span id="savedBusinessInfo"></span>
+      </div>
+      <button id="editBusinessButton" class="secondary-button" type="button">
+        Business details edit karein
+      </button>
     </section>
 
     <section class="workspace">
@@ -169,18 +202,16 @@
           </article>
 
           <div class="action-row">
-  <button class="action-button" type="button" data-copy-target="whatsappMessage">
-    Copy WhatsApp Message
-  </button>
-
-  <button id="shareWhatsAppButton" class="action-button whatsapp-button" type="button">
-    WhatsApp me Share Karein
-  </button>
-
-  <button class="action-button" type="button" data-copy-target="socialCaption">
-    Copy Social Caption
-  </button>
-</div>
+            <button class="action-button" type="button" data-copy-target="whatsappMessage">
+              Copy WhatsApp Message
+            </button>
+            <button id="shareWhatsAppButton" class="action-button whatsapp-button" type="button">
+              WhatsApp me Share Karein
+            </button>
+            <button class="action-button" type="button" data-copy-target="socialCaption">
+              Copy Social Caption
+            </button>
+          </div>
 
           <div class="content-card">
             <div class="content-card-header">
@@ -222,8 +253,107 @@
     </section>
   </main>
 
+  <div id="authModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+    <div class="modal-card">
+      <button class="modal-close" type="button" data-close-modal aria-label="Close">×</button>
+      <p id="authEyebrow" class="eyebrow">WELCOME TO VYAPARMITRA</p>
+      <h2 id="authModalTitle">Login karein</h2>
+      <p id="authDescription" class="modal-description">Apna saved business profile aur campaigns access karein.</p>
+
+      <form id="authForm" class="auth-form">
+        <label id="authNameWrap" class="hidden">
+          Aapka naam
+          <input id="authFullName" type="text" placeholder="e.g. Amit Kumar" autocomplete="name" />
+        </label>
+
+        <label>
+          Email address
+          <input id="authEmail" type="email" placeholder="you@example.com" autocomplete="email" required />
+        </label>
+
+        <label>
+          Password
+          <input
+            id="authPassword"
+            type="password"
+            placeholder="Kam se kam 6 characters"
+            autocomplete="current-password"
+            minlength="6"
+            required
+          />
+        </label>
+
+        <button id="authSubmitButton" type="submit">
+          <span>Login karein</span>
+        </button>
+        <p id="authError" class="form-error" role="alert"></p>
+      </form>
+
+      <p class="auth-switch">
+        <span id="authSwitchText">Naya account chahiye?</span>
+        <button id="authSwitchButton" class="link-button" type="button">Free account banaiye</button>
+      </p>
+    </div>
+  </div>
+
+  <div id="businessModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="businessModalTitle">
+    <div class="modal-card">
+      <button id="businessCloseButton" class="modal-close hidden" type="button" aria-label="Close">×</button>
+      <p class="eyebrow">STEP 1 OF 1</p>
+      <h2 id="businessModalTitle">Apna business setup karein</h2>
+      <p class="modal-description">Ye details future campaigns me automatically fill ho jayengi.</p>
+
+      <form id="businessForm" class="auth-form">
+        <label>
+          Business name
+          <input id="setupBusinessName" type="text" placeholder="e.g. Glow Beauty Salon" required />
+        </label>
+
+        <label>
+          Business category
+          <select id="setupCategory" required>
+            <option value="Salon">Salon / Beauty Parlour</option>
+            <option value="Boutique">Boutique / Clothing Shop</option>
+            <option value="Coaching Institute">Coaching Institute</option>
+            <option value="Restaurant or Cafe">Restaurant / Cafe</option>
+            <option value="Clinic">Clinic / Doctor</option>
+            <option value="Gym">Gym / Fitness Centre</option>
+            <option value="Property Dealer">Property Dealer</option>
+            <option value="Local Shop">Local Shop</option>
+            <option value="Other">Other</option>
+          </select>
+        </label>
+
+        <label>
+          City / locality
+          <input id="setupCity" type="text" placeholder="e.g. Lanka, Varanasi" required />
+        </label>
+
+        <label>
+          WhatsApp number
+          <input id="setupPhone" type="tel" placeholder="e.g. 9876543210" required />
+        </label>
+
+        <label>
+          Preferred language
+          <select id="setupLanguage">
+            <option value="Hindi">Hindi</option>
+            <option value="Hinglish">Hinglish</option>
+            <option value="English">English</option>
+          </select>
+        </label>
+
+        <button id="saveBusinessButton" type="submit">
+          <span>Business profile save karein</span>
+        </button>
+        <p id="businessError" class="form-error" role="alert"></p>
+      </form>
+    </div>
+  </div>
+
   <div id="toast" class="toast">Copied successfully</div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
