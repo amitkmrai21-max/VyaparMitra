@@ -994,3 +994,35 @@ form > button:hover {
     bottom: 19px;
   }
 }
+/* Header logo: larger and easier to read */
+.brand {
+  gap: 15px;
+}
+
+.brand-icon {
+  width: 58px;
+  height: 58px;
+  flex: 0 0 58px;
+  border-radius: 18px;
+  font-size: 30px;
+}
+
+.brand-copy .eyebrow {
+  margin-bottom: 5px;
+  font-size: 12px;
+  letter-spacing: 0.15em;
+}
+
+.brand-title {
+  font-size: 30px;
+  line-height: 1;
+  letter-spacing: -0.065em;
+}
+
+/* Guest-page heading: make it more balanced */
+.guest-gate-card h1 {
+  max-width: 680px;
+  font-size: clamp(28px, 3.3vw, 43px);
+  line-height: 1.1;
+  letter-spacing: -0.055em;
+}
