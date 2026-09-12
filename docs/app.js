@@ -1,5 +1,5 @@
 const SUPABASE_URL = "https://chpflrrfplyhfpmxiusm.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_osahZExe194skn2otQ1i6A_oSI65354";
+const SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_sb_publishable_KEY_HERE";
 const API_BASE_URL = "https://vyaparmitra-api.onrender.com";
 
 const supabaseClient = window.supabase.createClient(
@@ -28,7 +28,10 @@ const userGreeting = document.getElementById("userGreeting");
 const logoutButton = document.getElementById("logoutButton");
 const loginButton = document.getElementById("loginButton");
 const signupButton = document.getElementById("signupButton");
-const noticeSignupButton = document.getElementById("noticeSignupButton");
+const gateLoginButton = document.getElementById("gateLoginButton");
+const gateSignupButton = document.getElementById("gateSignupButton");
+const guestGate = document.getElementById("guestGate");
+const appContent = document.getElementById("appContent");
 
 const authModal = document.getElementById("authModal");
 const authForm = document.getElementById("authForm");
@@ -121,12 +124,9 @@ function setAuthMode(mode) {
 function openAuth(mode) {
   setAuthMode(mode);
   openModal(authModal);
+
   window.setTimeout(() => {
-    if (mode === "signup") {
-      authFullName.focus();
-    } else {
-      authEmail.focus();
-    }
+    (mode === "signup" ? authFullName : authEmail).focus();
   }, 50);
 }
 
@@ -153,9 +153,12 @@ function openBusinessSetup(isEditing = false) {
 
 function renderUserState() {
   const loggedIn = Boolean(appState.user);
+  const unlocked = loggedIn && Boolean(appState.business);
 
   guestActions.classList.toggle("hidden", loggedIn);
   userActions.classList.toggle("hidden", !loggedIn);
+  guestGate.classList.toggle("hidden", unlocked);
+  appContent.classList.toggle("hidden", !unlocked);
 
   if (loggedIn) {
     const name =
@@ -167,10 +170,9 @@ function renderUserState() {
     userGreeting.textContent = "";
   }
 
-  const hasBusiness = Boolean(appState.business);
-  businessBanner.classList.toggle("hidden", !hasBusiness);
+  businessBanner.classList.toggle("hidden", !unlocked);
 
-  if (hasBusiness) {
+  if (unlocked) {
     savedBusinessName.textContent = appState.business.business_name;
     savedBusinessInfo.textContent = [
       appState.business.category,
@@ -259,7 +261,7 @@ async function handleAuthSubmit(event) {
 
       if (!data.session) {
         authError.textContent =
-          "Account ban gaya. Ab apna email verify karke Login karein.";
+          "Account ban gaya. Email verify karke Login karein.";
         return;
       }
 
@@ -405,13 +407,13 @@ function renderCampaign(data, campaign) {
 }
 
 async function saveCampaignHistory(data, campaign) {
-  if (!appState.user) {
+  if (!appState.user || !appState.business) {
     return;
   }
 
   const { error } = await supabaseClient.from("campaigns").insert({
     owner_id: appState.user.id,
-    business_id: appState.business?.id || null,
+    business_id: appState.business.id,
     campaign_type: data.campaign_type,
     offer_details: data.offer,
     language: data.language,
@@ -431,6 +433,11 @@ async function saveCampaignHistory(data, campaign) {
 async function handleCampaignSubmit(event) {
   event.preventDefault();
   formError.textContent = "";
+
+  if (!appState.user || !appState.business) {
+    openAuth("login");
+    return;
+  }
 
   const data = getFormData();
 
@@ -473,7 +480,8 @@ function setupEventListeners() {
 
   loginButton.addEventListener("click", () => openAuth("login"));
   signupButton.addEventListener("click", () => openAuth("signup"));
-  noticeSignupButton.addEventListener("click", () => openAuth("signup"));
+  gateLoginButton.addEventListener("click", () => openAuth("login"));
+  gateSignupButton.addEventListener("click", () => openAuth("signup"));
 
   authSwitchButton.addEventListener("click", () => {
     openAuth(appState.authMode === "login" ? "signup" : "login");
@@ -546,6 +554,10 @@ async function initializeApp() {
   if (data.session) {
     appState.user = data.session.user;
     await loadBusiness();
+
+    if (!appState.business) {
+      openBusinessSetup(false);
+    }
   }
 
   supabaseClient.auth.onAuthStateChange((_event, session) => {
