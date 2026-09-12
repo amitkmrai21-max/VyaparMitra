@@ -1026,3 +1026,34 @@ form > button:hover {
   line-height: 1.1;
   letter-spacing: -0.055em;
 }
+/* Slider photos */
+.feature-visual {
+  overflow: hidden;
+  padding: 0;
+}
+
+.feature-visual img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.visual-business::before,
+.visual-campaign::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    135deg,
+    rgba(8, 22, 18, 0.18),
+    rgba(20, 183, 147, 0.08)
+  );
+  pointer-events: none;
+}
+
+.feature-visual img {
+  position: relative;
+  z-index: 0;
+}
