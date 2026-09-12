@@ -28,8 +28,6 @@ const userGreeting = document.getElementById("userGreeting");
 const logoutButton = document.getElementById("logoutButton");
 const loginButton = document.getElementById("loginButton");
 const signupButton = document.getElementById("signupButton");
-const gateLoginButton = document.getElementById("gateLoginButton");
-const gateSignupButton = document.getElementById("gateSignupButton");
 const guestGate = document.getElementById("guestGate");
 const appContent = document.getElementById("appContent");
 
@@ -480,8 +478,6 @@ function setupEventListeners() {
 
   loginButton.addEventListener("click", () => openAuth("login"));
   signupButton.addEventListener("click", () => openAuth("signup"));
-  gateLoginButton.addEventListener("click", () => openAuth("login"));
-  gateSignupButton.addEventListener("click", () => openAuth("signup"));
 
   authSwitchButton.addEventListener("click", () => {
     openAuth(appState.authMode === "login" ? "signup" : "login");
