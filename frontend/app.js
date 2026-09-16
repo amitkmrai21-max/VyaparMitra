@@ -97,7 +97,7 @@ form.addEventListener("submit", async (event) => {
   } finally {
     generateButton.disabled = false;
     generateButton.querySelector("span").textContent =
-      "✨ AI Campaign Generate Karein";
+      "✨ Campaign Generate Karein";
   }
 });
 
@@ -119,7 +119,7 @@ shareWhatsAppButton.addEventListener("click", () => {
   const message = document.getElementById("whatsappMessage").textContent.trim();
 
   if (!message) {
-    showToast("Pehle AI campaign generate karein.");
+    showToast("Pehle campaign generate karein.");
     return;
   }
 

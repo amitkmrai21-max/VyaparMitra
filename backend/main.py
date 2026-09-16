@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field
 load_dotenv()
 
 app = FastAPI(
-    title="VyaparMitra AI API",
+    title="VyaparMitra API",
     version="0.1.0",
     description="Hindi/Hinglish WhatsApp marketing assistant for local businesses",
 )
@@ -110,7 +110,7 @@ async def generate_with_groq(prompt: str) -> dict:
     if response.status_code >= 400:
         raise HTTPException(
             status_code=502,
-            detail=f"AI provider error: {response.text}",
+            detail=f"Content provider error: {response.text}",
         )
 
     try:
@@ -119,7 +119,7 @@ async def generate_with_groq(prompt: str) -> dict:
     except (KeyError, IndexError, json.JSONDecodeError) as error:
         raise HTTPException(
             status_code=502,
-            detail="AI returned an invalid campaign response.",
+            detail="Content provider returned an invalid campaign response.",
         ) from error
 
 
@@ -127,7 +127,7 @@ async def generate_with_groq(prompt: str) -> dict:
 def home():
     return {
         "status": "online",
-        "app": "VyaparMitra AI API",
+        "app": "VyaparMitra API",
         "docs": "/docs",
     }
 
@@ -136,7 +136,7 @@ def home():
 def health():
     return {
         "status": "ok",
-        "ai_configured": bool(GROQ_API_KEY),
+        "provider_configured": bool(GROQ_API_KEY),
         "model": GROQ_MODEL,
     }
 
@@ -151,5 +151,5 @@ async def generate_campaign(data: CampaignRequest):
     except Exception as error:
         raise HTTPException(
             status_code=502,
-            detail="AI response did not match the required campaign format.",
+            detail="Response did not match the required campaign format.",
         ) from error
