@@ -611,6 +611,197 @@ form > button:hover {
   font-size: 17px;
 }
 
+/* Customer Manager */
+.customer-section {
+  margin-top: 40px;
+}
+
+.section-heading.standalone {
+  max-width: 620px;
+  margin-bottom: 22px;
+}
+
+.section-heading.standalone h3 {
+  margin: 0 0 6px;
+  font-size: 25px;
+  letter-spacing: -0.045em;
+}
+
+.section-heading.standalone > p:last-child {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.today-followups {
+  margin-bottom: 22px;
+  border: 1px solid #d4e8d9;
+  border-radius: 20px;
+  background: #f2fbf4;
+  padding: 20px 22px;
+}
+
+.today-followups-header {
+  margin-bottom: 14px;
+}
+
+.today-followups-header h4 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: -0.03em;
+}
+
+.followup-list {
+  display: grid;
+  gap: 10px;
+}
+
+.followup-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border: 1px solid rgba(19, 32, 24, 0.08);
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 12px 14px;
+}
+
+.followup-item-info {
+  display: grid;
+  gap: 3px;
+}
+
+.followup-item-info strong {
+  font-size: 14px;
+}
+
+.followup-item-info span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.customer-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.88fr) minmax(360px, 1.12fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.customer-list-card {
+  min-height: 0;
+  padding: 28px;
+}
+
+.customer-count {
+  border-radius: 100px;
+  background: #eef7ef;
+  color: var(--green-dark);
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.customer-list {
+  display: grid;
+  gap: 12px;
+}
+
+.customer-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  border: 1px solid #e5ebe5;
+  border-radius: 16px;
+  background: #ffffff;
+  padding: 16px;
+}
+
+.customer-row-info {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.customer-row-info strong {
+  font-size: 15px;
+}
+
+.customer-row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.customer-row-note {
+  margin: 0;
+  color: #3b4b40;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.customer-badge {
+  border-radius: 100px;
+  padding: 3px 10px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.customer-badge-general {
+  background: #eef1ee;
+  color: #52604f;
+}
+
+.customer-badge-appointment {
+  background: #eef7ef;
+  color: var(--green-dark);
+}
+
+.customer-badge-payment {
+  background: #fdf1d9;
+  color: #94640c;
+}
+
+.customer-row-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 6px;
+}
+
+.icon-button {
+  border: 1px solid #d9e3db;
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--green-dark);
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 800;
+  transition: 0.2s ease;
+}
+
+.icon-button:hover {
+  border-color: #a9c7b2;
+  background: #f4faf5;
+}
+
+.icon-button-danger {
+  color: var(--danger);
+}
+
+.icon-button-danger:hover {
+  border-color: #eab8b8;
+  background: #fdf3f3;
+}
+
 /* Login and business setup modal */
 .modal {
   position: fixed;
@@ -714,7 +905,8 @@ form > button:hover {
 
 @media (max-width: 900px) {
   .hero,
-  .workspace {
+  .workspace,
+  .customer-grid {
     grid-template-columns: 1fr;
   }
 
@@ -724,6 +916,18 @@ form > button:hover {
 
   .account-notice {
     max-width: 520px;
+  }
+}
+
+@media (max-width: 580px) {
+  .customer-row,
+  .followup-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .customer-row-actions {
+    justify-content: flex-end;
   }
 }
 

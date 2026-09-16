@@ -10,6 +10,7 @@ const supabaseClient = window.supabase.createClient(
 const appState = {
   user: null,
   business: null,
+  customers: [],
   authMode: "login"
 };
 
@@ -58,6 +59,30 @@ const editBusinessButton = document.getElementById("editBusinessButton");
 const businessBanner = document.getElementById("businessBanner");
 const savedBusinessName = document.getElementById("savedBusinessName");
 const savedBusinessInfo = document.getElementById("savedBusinessInfo");
+
+const customerForm = document.getElementById("customerForm");
+const customerId = document.getElementById("customerId");
+const customerName = document.getElementById("customerName");
+const customerPhone = document.getElementById("customerPhone");
+const customerType = document.getElementById("customerType");
+const customerFollowUpDate = document.getElementById("customerFollowUpDate");
+const customerNotes = document.getElementById("customerNotes");
+const customerError = document.getElementById("customerError");
+const saveCustomerButton = document.getElementById("saveCustomerButton");
+const cancelCustomerEditButton = document.getElementById("cancelCustomerEditButton");
+const customerFormEyebrow = document.getElementById("customerFormEyebrow");
+const customerFormTitle = document.getElementById("customerFormTitle");
+const customerEmptyState = document.getElementById("customerEmptyState");
+const customerListItems = document.getElementById("customerListItems");
+const customerCount = document.getElementById("customerCount");
+const todayFollowups = document.getElementById("todayFollowups");
+const todayFollowupsList = document.getElementById("todayFollowupsList");
+
+const REMINDER_TYPE_LABELS = {
+  general: "General",
+  appointment: "Appointment",
+  payment: "Payment"
+};
 
 function showState(state) {
   emptyState.classList.add("hidden");
@@ -223,6 +248,294 @@ async function loadBusiness() {
   appState.business = data || null;
   renderUserState();
   applyBusinessToCampaignForm();
+  await loadCustomers();
+}
+
+function todayISODate() {
+  const now = new Date();
+  const offset = now.getTimezoneOffset();
+  return new Date(now.getTime() - offset * 60000).toISOString().slice(0, 10);
+}
+
+async function loadCustomers() {
+  if (!appState.user || !appState.business) {
+    appState.customers = [];
+    renderCustomers();
+    return;
+  }
+
+  const { data, error } = await supabaseClient
+    .from("customers")
+    .select("*")
+    .eq("business_id", appState.business.id)
+    .order("follow_up_date", { ascending: true, nullsFirst: false });
+
+  if (error) {
+    console.error("Customer list load error:", error);
+    showToast("Customer list load nahi ho paya.");
+    return;
+  }
+
+  appState.customers = data || [];
+  renderCustomers();
+}
+
+function customerRowMarkup(entry, { withReminder = false } = {}) {
+  const badgeClass = `customer-badge customer-badge-${entry.reminder_type || "general"}`;
+  const badgeLabel = REMINDER_TYPE_LABELS[entry.reminder_type] || "General";
+  const followUpLabel = entry.follow_up_date
+    ? new Date(`${entry.follow_up_date}T00:00:00`).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric"
+      })
+    : null;
+
+  const wrapper = document.createElement(withReminder ? "div" : "div");
+  wrapper.className = withReminder ? "followup-item" : "customer-row";
+
+  const info = document.createElement("div");
+  info.className = withReminder ? "followup-item-info" : "customer-row-info";
+
+  const nameEl = document.createElement("strong");
+  nameEl.textContent = entry.name;
+  info.appendChild(nameEl);
+
+  const meta = document.createElement(withReminder ? "span" : "div");
+  meta.className = withReminder ? "" : "customer-row-meta";
+
+  if (withReminder) {
+    meta.textContent = [badgeLabel, entry.phone, followUpLabel]
+      .filter(Boolean)
+      .join(" · ");
+  } else {
+    const badge = document.createElement("span");
+    badge.className = badgeClass;
+    badge.textContent = badgeLabel;
+    meta.appendChild(badge);
+
+    const phoneSpan = document.createElement("span");
+    phoneSpan.textContent = entry.phone;
+    meta.appendChild(phoneSpan);
+
+    if (followUpLabel) {
+      const dateSpan = document.createElement("span");
+      dateSpan.textContent = followUpLabel;
+      meta.appendChild(dateSpan);
+    }
+  }
+
+  info.appendChild(meta);
+
+  if (!withReminder && entry.notes) {
+    const note = document.createElement("p");
+    note.className = "customer-row-note";
+    note.textContent = entry.notes;
+    info.appendChild(note);
+  }
+
+  wrapper.appendChild(info);
+
+  const actions = document.createElement("div");
+  actions.className = withReminder ? "" : "customer-row-actions";
+
+  const reminderButton = document.createElement("button");
+  reminderButton.type = "button";
+  reminderButton.className = "icon-button";
+  reminderButton.textContent = "Reminder bhejein";
+  reminderButton.addEventListener("click", () => sendCustomerReminder(entry));
+  actions.appendChild(reminderButton);
+
+  if (!withReminder) {
+    const editButton = document.createElement("button");
+    editButton.type = "button";
+    editButton.className = "icon-button";
+    editButton.textContent = "Edit";
+    editButton.addEventListener("click", () => startCustomerEdit(entry));
+    actions.appendChild(editButton);
+
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.className = "icon-button icon-button-danger";
+    deleteButton.textContent = "Delete";
+    deleteButton.addEventListener("click", () => handleCustomerDelete(entry));
+    actions.appendChild(deleteButton);
+  }
+
+  wrapper.appendChild(actions);
+  return wrapper;
+}
+
+function renderCustomers() {
+  const customers = appState.customers;
+
+  customerCount.textContent = `${customers.length} customer${
+    customers.length === 1 ? "" : "s"
+  }`;
+  customerEmptyState.classList.toggle("hidden", customers.length > 0);
+  customerListItems.innerHTML = "";
+
+  customers.forEach((entry) => {
+    customerListItems.appendChild(customerRowMarkup(entry));
+  });
+
+  const today = todayISODate();
+  const dueToday = customers.filter(
+    (entry) => entry.follow_up_date && entry.follow_up_date <= today
+  );
+
+  todayFollowups.classList.toggle("hidden", dueToday.length === 0);
+  todayFollowupsList.innerHTML = "";
+
+  dueToday.forEach((entry) => {
+    todayFollowupsList.appendChild(
+      customerRowMarkup(entry, { withReminder: true })
+    );
+  });
+}
+
+function resetCustomerForm() {
+  customerForm.reset();
+  customerId.value = "";
+  customerError.textContent = "";
+  customerFormEyebrow.textContent = "NAYA CUSTOMER";
+  customerFormTitle.textContent = "Customer add karein";
+  saveCustomerButton.querySelector("span").textContent = "Customer save karein";
+  cancelCustomerEditButton.classList.add("hidden");
+}
+
+function startCustomerEdit(entry) {
+  customerId.value = entry.id;
+  customerName.value = entry.name;
+  customerPhone.value = entry.phone;
+  customerType.value = entry.reminder_type || "general";
+  customerFollowUpDate.value = entry.follow_up_date || "";
+  customerNotes.value = entry.notes || "";
+
+  customerFormEyebrow.textContent = "CUSTOMER EDIT KAREIN";
+  customerFormTitle.textContent = `${entry.name} ko update karein`;
+  saveCustomerButton.querySelector("span").textContent = "Customer update karein";
+  cancelCustomerEditButton.classList.remove("hidden");
+  customerForm.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+async function handleCustomerSubmit(event) {
+  event.preventDefault();
+  customerError.textContent = "";
+
+  if (!appState.user || !appState.business) {
+    showToast("Pehle business profile save karein.");
+    return;
+  }
+
+  const name = customerName.value.trim();
+  const phone = customerPhone.value.trim();
+
+  if (!name || !phone) {
+    customerError.textContent = "Customer naam aur WhatsApp number bharein.";
+    return;
+  }
+
+  const payload = {
+    owner_id: appState.user.id,
+    business_id: appState.business.id,
+    name,
+    phone,
+    reminder_type: customerType.value,
+    follow_up_date: customerFollowUpDate.value || null,
+    notes: customerNotes.value.trim() || null
+  };
+
+  const editingId = customerId.value;
+  setButtonLoading(
+    saveCustomerButton,
+    editingId ? "Update ho raha hai…" : "Save ho raha hai…",
+    true
+  );
+
+  try {
+    const query = editingId
+      ? supabaseClient.from("customers").update(payload).eq("id", editingId)
+      : supabaseClient.from("customers").insert(payload);
+
+    const { error } = await query;
+
+    if (error) {
+      throw error;
+    }
+
+    showToast(editingId ? "Customer update ho gaya." : "Customer save ho gaya.");
+    resetCustomerForm();
+    await loadCustomers();
+  } catch (error) {
+    console.error("Customer save error:", error);
+    customerError.textContent =
+      error.message || "Customer save nahi ho paya.";
+  } finally {
+    setButtonLoading(
+      saveCustomerButton,
+      editingId ? "Customer update karein" : "Customer save karein",
+      false
+    );
+  }
+}
+
+async function handleCustomerDelete(entry) {
+  if (!window.confirm(`${entry.name} ko customer list se delete karein?`)) {
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from("customers")
+    .delete()
+    .eq("id", entry.id);
+
+  if (error) {
+    console.error("Customer delete error:", error);
+    showToast("Customer delete nahi ho paya.");
+    return;
+  }
+
+  if (customerId.value === entry.id) {
+    resetCustomerForm();
+  }
+
+  showToast("Customer delete ho gaya.");
+  await loadCustomers();
+}
+
+function buildReminderMessage(entry) {
+  const businessName = appState.business?.business_name || "Hamara business";
+  const followUpLabel = entry.follow_up_date
+    ? new Date(`${entry.follow_up_date}T00:00:00`).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric"
+      })
+    : null;
+
+  if (entry.reminder_type === "appointment") {
+    return `Namaste ${entry.name}, ye ${businessName} se reminder hai${
+      followUpLabel ? ` — aapki appointment ${followUpLabel} ko hai` : ""
+    }. Kripya time par aa jaayein. Dhanyawad!`;
+  }
+
+  if (entry.reminder_type === "payment") {
+    return `Namaste ${entry.name}, ye ${businessName} se friendly reminder hai${
+      followUpLabel ? ` — aapka payment ${followUpLabel} tak due hai` : ""
+    }. Kripya jaldi clear kar dein. Dhanyawad!`;
+  }
+
+  return `Namaste ${entry.name}, ${businessName} ki taraf se aapke liye ek update hai. Please humse WhatsApp par judiye!`;
+}
+
+function sendCustomerReminder(entry) {
+  const message = buildReminderMessage(entry);
+  const digitsOnly = entry.phone.replace(/[^0-9]/g, "");
+  const whatsappShareUrl = `https://wa.me/${digitsOnly}?text=${encodeURIComponent(
+    message
+  )}`;
+  window.open(whatsappShareUrl, "_blank", "noopener,noreferrer");
 }
 
 async function handleAuthSubmit(event) {
@@ -347,6 +660,7 @@ async function handleBusinessSubmit(event) {
     applyBusinessToCampaignForm();
     closeModal(businessModal);
     showToast("Business profile save ho gaya.");
+    await loadCustomers();
   } catch (error) {
     console.error("Business save error:", error);
     businessError.textContent =
@@ -366,7 +680,9 @@ async function handleLogout() {
 
   appState.user = null;
   appState.business = null;
+  appState.customers = [];
   renderUserState();
+  renderCustomers();
   showToast("Aap logout ho gaye.");
 }
 
@@ -543,6 +859,9 @@ function setupEventListeners() {
   editBusinessButton.addEventListener("click", () => openBusinessSetup(true));
   businessCloseButton.addEventListener("click", () => closeModal(businessModal));
   logoutButton.addEventListener("click", handleLogout);
+
+  customerForm.addEventListener("submit", handleCustomerSubmit);
+  cancelCustomerEditButton.addEventListener("click", resetCustomerForm);
 
   document.querySelectorAll("[data-close-modal]").forEach((button) => {
     button.addEventListener("click", () => closeModal(authModal));

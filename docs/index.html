@@ -333,6 +333,116 @@
           </div>
         </div>
       </section>
+
+      <section class="customer-section">
+        <div class="section-heading standalone">
+          <p class="eyebrow">CUSTOMER MANAGER</p>
+          <h3>Customers aur follow-ups</h3>
+          <p>
+            Apne customers save karein aur appointment ya payment follow-ups
+            par time par WhatsApp reminder bhejein.
+          </p>
+        </div>
+
+        <div id="todayFollowups" class="today-followups hidden">
+          <div class="today-followups-header">
+            <p class="eyebrow">AAJ KE FOLLOW-UPS</p>
+            <h4>Today's Follow-ups</h4>
+          </div>
+          <div id="todayFollowupsList" class="followup-list"></div>
+        </div>
+
+        <div class="customer-grid">
+          <div class="form-card">
+            <div class="section-heading">
+              <p class="eyebrow" id="customerFormEyebrow">NAYA CUSTOMER</p>
+              <h3 id="customerFormTitle">Customer add karein</h3>
+              <p>
+                Naam, phone aur follow-up date bharein — reminder khud track
+                ho jayega.
+              </p>
+            </div>
+
+            <form id="customerForm">
+              <input type="hidden" id="customerId" value="" />
+              <div class="input-grid">
+                <label>
+                  Customer naam
+                  <input
+                    id="customerName"
+                    type="text"
+                    placeholder="e.g. Priya Sharma"
+                    required
+                  />
+                </label>
+
+                <label>
+                  WhatsApp number
+                  <input
+                    id="customerPhone"
+                    type="tel"
+                    placeholder="e.g. 9876543210"
+                    required
+                  />
+                </label>
+
+                <label>
+                  Follow-up type
+                  <select id="customerType">
+                    <option value="general">General follow-up</option>
+                    <option value="appointment">Appointment reminder</option>
+                    <option value="payment">Payment reminder</option>
+                  </select>
+                </label>
+
+                <label>
+                  Follow-up date
+                  <input id="customerFollowUpDate" type="date" />
+                </label>
+              </div>
+
+              <label class="full-width">
+                Note (optional)
+                <textarea
+                  id="customerNotes"
+                  rows="3"
+                  placeholder="e.g. Bridal package follow-up, 2nd installment due"
+                ></textarea>
+              </label>
+
+              <button id="saveCustomerButton" type="submit">
+                <span>Customer save karein</span>
+              </button>
+              <p id="customerError" class="form-error" role="alert"></p>
+              <button
+                id="cancelCustomerEditButton"
+                class="secondary-button hidden"
+                type="button"
+              >
+                Edit cancel karein
+              </button>
+            </form>
+          </div>
+
+          <div class="result-area customer-list-card">
+            <div class="result-topbar">
+              <div>
+                <p class="eyebrow">CUSTOMER LIST</p>
+                <h3>Aapke customers</h3>
+              </div>
+              <span id="customerCount" class="customer-count">0 customers</span>
+            </div>
+
+            <div id="customerEmptyState" class="empty-state">
+              <div class="empty-icon">✦</div>
+              <h3>Abhi koi customer nahi</h3>
+              <p>Left side form se apna pehla customer add karein.</p>
+            </div>
+
+            <div id="customerListItems" class="customer-list"></div>
+          </div>
+        </div>
+      </section>
     </div>
   </main>
 
