@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VyaparMitra — WhatsApp Growth Assistant</title>
   <meta
     name="description"
-    content="Hindi aur Urdu me local business ke liye WhatsApp messages, offers aur marketing campaigns banaiye."
+    content="Create WhatsApp messages, offers and marketing campaigns for your local business in Hindi and Urdu."
   />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -124,19 +124,19 @@
       <section class="hero">
         <div class="hero-copy">
           <p class="pill">WhatsApp-first growth assistant</p>
-          <h1>Apne local business ke liye offers aur customer messages 1 minute me banaiye.</h1>
+          <h1>Create offers and customer messages for your local business in 1 minute.</h1>
           <p>
-            Hindi, Urdu ya English me branded campaigns banaiye—WhatsApp,
-            Status aur social media ke liye.
+            Create branded campaigns in Hindi, Urdu or English — for
+            WhatsApp, Status and social media.
           </p>
         </div>
 
         <aside class="account-notice">
           <p class="eyebrow">YOUR ACCOUNT</p>
-          <h2>Campaigns save honge</h2>
+          <h2>Your campaigns will be saved</h2>
           <p>
-            Aapke generated campaigns securely saved rahenge aur future me
-            customer tools bhi yahin milenge.
+            Your generated campaigns are saved securely, and customer tools
+            will be available here too in future.
           </p>
         </aside>
       </section>
@@ -148,7 +148,7 @@
           <span id="savedBusinessInfo"></span>
         </div>
         <button id="editBusinessButton" class="secondary-button" type="button">
-          Business details edit karein
+          Edit business details
         </button>
       </section>
 
@@ -157,7 +157,7 @@
           <div class="section-heading">
             <p class="eyebrow">STEP 1</p>
             <h3>Business details</h3>
-            <p>Campaign generate karne ke liye apne business ki details bharein.</p>
+            <p>Fill in your business details to generate a campaign.</p>
           </div>
 
           <form id="campaignForm">
@@ -235,13 +235,13 @@
               <textarea
                 id="offer"
                 rows="5"
-                placeholder="e.g. Bridal makeup package par 15% discount. Wedding season ke liye limited bookings."
+                placeholder="e.g. 15% discount on bridal makeup package. Limited bookings for wedding season."
                 required
               ></textarea>
             </label>
 
             <button id="generateButton" type="submit">
-              <span>✨ Campaign Generate Karein</span>
+              <span>✨ Generate Campaign</span>
             </button>
 
             <p id="formError" class="form-error" role="alert"></p>
@@ -251,14 +251,14 @@
         <div class="result-area">
           <div id="emptyState" class="empty-state">
             <div class="empty-icon">✦</div>
-            <h3>Aapka campaign yahan dikhega</h3>
-            <p>Left side details bhariye aur VyaparMitra campaign banayega.</p>
+            <h3>Your campaign will appear here</h3>
+            <p>Fill in the details on the left and VyaparMitra will create your campaign.</p>
           </div>
 
           <div id="loadingState" class="loading-state hidden">
             <div class="loader"></div>
-            <h3>Campaign ban raha hai…</h3>
-            <p>Hindi marketing copy aur WhatsApp message taiyar kiya ja raha hai.</p>
+            <h3>Generating your campaign…</h3>
+            <p>Your marketing copy and WhatsApp message are being prepared.</p>
           </div>
 
           <div id="resultState" class="hidden">
@@ -268,17 +268,17 @@
                 <h3>Ready campaign</h3>
               </div>
               <button id="newCampaignButton" class="secondary-button" type="button">
-                + Naya campaign
+                + New campaign
               </button>
             </div>
 
             <article class="poster-card">
               <p class="poster-brand" id="posterBusinessName">Your Business</p>
               <p class="poster-type" id="posterCampaignType">SPECIAL OFFER</p>
-              <h2 id="posterHeadline">Aapka offer headline</h2>
+              <h2 id="posterHeadline">Your offer headline</h2>
               <p id="posterCity">Your City</p>
               <div class="poster-footer">
-                <span>WhatsApp karein</span>
+                <span>Message on WhatsApp</span>
                 <strong id="posterPhone">0000000000</strong>
               </div>
             </article>
@@ -288,7 +288,7 @@
                 Copy WhatsApp Message
               </button>
               <button id="shareWhatsAppButton" class="action-button whatsapp-button" type="button">
-                WhatsApp me Share Karein
+                Share on WhatsApp
               </button>
               <button class="action-button" type="button" data-copy-target="socialCaption">
                 Copy Social Caption
@@ -337,16 +337,16 @@
       <section class="customer-section">
         <div class="section-heading standalone">
           <p class="eyebrow">CUSTOMER MANAGER</p>
-          <h3>Customers aur follow-ups</h3>
+          <h3>Customers and follow-ups</h3>
           <p>
-            Apne customers save karein aur appointment ya payment follow-ups
-            par time par WhatsApp reminder bhejein.
+            Save your customers and send timely WhatsApp reminders for
+            appointment or payment follow-ups.
           </p>
         </div>
 
         <div id="todayFollowups" class="today-followups hidden">
           <div class="today-followups-header">
-            <p class="eyebrow">AAJ KE FOLLOW-UPS</p>
+            <p class="eyebrow">TODAY'S FOLLOW-UPS</p>
             <h4>Today's Follow-ups</h4>
           </div>
           <div id="todayFollowupsList" class="followup-list"></div>
@@ -355,11 +355,11 @@
         <div class="customer-grid">
           <div class="form-card">
             <div class="section-heading">
-              <p class="eyebrow" id="customerFormEyebrow">NAYA CUSTOMER</p>
-              <h3 id="customerFormTitle">Customer add karein</h3>
+              <p class="eyebrow" id="customerFormEyebrow">NEW CUSTOMER</p>
+              <h3 id="customerFormTitle">Add a customer</h3>
               <p>
-                Naam, phone aur follow-up date bharein — reminder khud track
-                ho jayega.
+                Enter name, phone and follow-up date — reminders are tracked
+                automatically.
               </p>
             </div>
 
@@ -367,7 +367,7 @@
               <input type="hidden" id="customerId" value="" />
               <div class="input-grid">
                 <label>
-                  Customer naam
+                  Customer name
                   <input
                     id="customerName"
                     type="text"
@@ -411,7 +411,7 @@
               </label>
 
               <button id="saveCustomerButton" type="submit">
-                <span>Customer save karein</span>
+                <span>Save customer</span>
               </button>
               <p id="customerError" class="form-error" role="alert"></p>
               <button
@@ -419,7 +419,7 @@
                 class="secondary-button hidden"
                 type="button"
               >
-                Edit cancel karein
+                Cancel edit
               </button>
             </form>
           </div>
@@ -428,15 +428,15 @@
             <div class="result-topbar">
               <div>
                 <p class="eyebrow">CUSTOMER LIST</p>
-                <h3>Aapke customers</h3>
+                <h3>Your customers</h3>
               </div>
               <span id="customerCount" class="customer-count">0 customers</span>
             </div>
 
             <div id="customerEmptyState" class="empty-state">
               <div class="empty-icon">✦</div>
-              <h3>Abhi koi customer nahi</h3>
-              <p>Left side form se apna pehla customer add karein.</p>
+              <h3>No customers yet</h3>
+              <p>Add your first customer using the form on the left.</p>
             </div>
 
             <div id="customerListItems" class="customer-list"></div>
@@ -450,14 +450,14 @@
     <div class="modal-card">
       <button class="modal-close" type="button" data-close-modal aria-label="Close">×</button>
       <p id="authEyebrow" class="eyebrow">WELCOME TO VYAPARMITRA</p>
-      <h2 id="authModalTitle">Login karein</h2>
+      <h2 id="authModalTitle">Log in</h2>
       <p id="authDescription" class="modal-description">
-        Apna saved business profile aur campaigns access karein.
+        Access your saved business profile and campaigns.
       </p>
 
       <form id="authForm" class="auth-form">
         <label id="authNameWrap" class="hidden">
-          Aapka naam
+          Your name
           <input id="authFullName" type="text" placeholder="e.g. Amit Kumar" autocomplete="name" />
         </label>
 
@@ -471,7 +471,7 @@
           <input
             id="authPassword"
             type="password"
-            placeholder="Kam se kam 6 characters"
+            placeholder="At least 6 characters"
             autocomplete="current-password"
             minlength="6"
             required
@@ -485,7 +485,7 @@
       </form>
 
       <p class="auth-switch">
-        <span id="authSwitchText">Naya account chahiye?</span>
+        <span id="authSwitchText">Need a new account?</span>
         <button id="authSwitchButton" class="link-button" type="button">Sign up</button>
       </p>
     </div>
@@ -495,9 +495,9 @@
     <div class="modal-card">
       <button id="businessCloseButton" class="modal-close hidden" type="button" aria-label="Close">×</button>
       <p class="eyebrow">STEP 1 OF 1</p>
-      <h2 id="businessModalTitle">Apna business setup karein</h2>
+      <h2 id="businessModalTitle">Set up your business</h2>
       <p class="modal-description">
-        Ye details future campaigns me automatically fill ho jayengi.
+        These details will auto-fill in future campaigns.
       </p>
 
       <form id="businessForm" class="auth-form">
@@ -541,7 +541,7 @@
         </label>
 
         <button id="saveBusinessButton" type="submit">
-          <span>Business profile save karein</span>
+          <span>Save business profile</span>
         </button>
         <p id="businessError" class="form-error" role="alert"></p>
       </form>

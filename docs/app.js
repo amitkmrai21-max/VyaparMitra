@@ -127,24 +127,25 @@ function setAuthMode(mode) {
   const isSignup = mode === "signup";
 
   authError.textContent = "";
+  authError.classList.remove("is-success");
   authForm.reset();
   authPassword.autocomplete = isSignup ? "new-password" : "current-password";
 
   authEyebrow.textContent = isSignup
     ? "FREE VYAPARMITRA ACCOUNT"
     : "WELCOME TO VYAPARMITRA";
-  authModalTitle.textContent = isSignup ? "Sign up karein" : "Login karein";
+  authModalTitle.textContent = isSignup ? "Sign up" : "Log in";
   authDescription.textContent = isSignup
-    ? "Apna business profile save kijiye aur campaigns kabhi bhi access kijiye."
-    : "Apna saved business profile aur campaigns access karein.";
+    ? "Save your business profile and access your campaigns anytime."
+    : "Access your saved business profile and campaigns.";
   authNameWrap.classList.toggle("hidden", !isSignup);
   authFullName.required = isSignup;
   authSubmitButton.querySelector("span").textContent = isSignup
     ? "Sign up"
     : "Login";
   authSwitchText.textContent = isSignup
-    ? "Already account hai?"
-    : "Naya account chahiye?";
+    ? "Already have an account?"
+    : "Need a new account?";
   authSwitchButton.textContent = isSignup ? "Login" : "Sign up";
 }
 
@@ -192,7 +193,7 @@ function renderUserState() {
       appState.user.user_metadata?.full_name ||
       appState.user.email?.split("@")[0] ||
       "User";
-    userGreeting.textContent = `Namaste, ${name}`;
+    userGreeting.textContent = `Hi, ${name}`;
   } else {
     userGreeting.textContent = "";
   }
@@ -241,7 +242,7 @@ async function loadBusiness() {
 
   if (error) {
     console.error("Business profile load error:", error);
-    showToast("Business profile load nahi ho paya.");
+    showToast("Couldn't load business profile.");
     return;
   }
 
@@ -272,7 +273,7 @@ async function loadCustomers() {
 
   if (error) {
     console.error("Customer list load error:", error);
-    showToast("Customer list load nahi ho paya.");
+    showToast("Couldn't load customer list.");
     return;
   }
 
@@ -342,7 +343,7 @@ function customerRowMarkup(entry, { withReminder = false } = {}) {
   const reminderButton = document.createElement("button");
   reminderButton.type = "button";
   reminderButton.className = "icon-button";
-  reminderButton.textContent = "Reminder bhejein";
+  reminderButton.textContent = "Send reminder";
   reminderButton.addEventListener("click", () => sendCustomerReminder(entry));
   actions.appendChild(reminderButton);
 
@@ -398,9 +399,9 @@ function resetCustomerForm() {
   customerForm.reset();
   customerId.value = "";
   customerError.textContent = "";
-  customerFormEyebrow.textContent = "NAYA CUSTOMER";
-  customerFormTitle.textContent = "Customer add karein";
-  saveCustomerButton.querySelector("span").textContent = "Customer save karein";
+  customerFormEyebrow.textContent = "NEW CUSTOMER";
+  customerFormTitle.textContent = "Add a customer";
+  saveCustomerButton.querySelector("span").textContent = "Save customer";
   cancelCustomerEditButton.classList.add("hidden");
 }
 
@@ -412,9 +413,9 @@ function startCustomerEdit(entry) {
   customerFollowUpDate.value = entry.follow_up_date || "";
   customerNotes.value = entry.notes || "";
 
-  customerFormEyebrow.textContent = "CUSTOMER EDIT KAREIN";
-  customerFormTitle.textContent = `${entry.name} ko update karein`;
-  saveCustomerButton.querySelector("span").textContent = "Customer update karein";
+  customerFormEyebrow.textContent = "EDIT CUSTOMER";
+  customerFormTitle.textContent = `Update ${entry.name}`;
+  saveCustomerButton.querySelector("span").textContent = "Update customer";
   cancelCustomerEditButton.classList.remove("hidden");
   customerForm.scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -424,7 +425,7 @@ async function handleCustomerSubmit(event) {
   customerError.textContent = "";
 
   if (!appState.user || !appState.business) {
-    showToast("Pehle business profile save karein.");
+    showToast("Please save your business profile first.");
     return;
   }
 
@@ -432,7 +433,7 @@ async function handleCustomerSubmit(event) {
   const phone = customerPhone.value.trim();
 
   if (!name || !phone) {
-    customerError.textContent = "Customer naam aur WhatsApp number bharein.";
+    customerError.textContent = "Enter customer name and WhatsApp number.";
     return;
   }
 
@@ -449,7 +450,7 @@ async function handleCustomerSubmit(event) {
   const editingId = customerId.value;
   setButtonLoading(
     saveCustomerButton,
-    editingId ? "Update ho raha hai…" : "Save ho raha hai…",
+    editingId ? "Updating…" : "Saving…",
     true
   );
 
@@ -464,24 +465,24 @@ async function handleCustomerSubmit(event) {
       throw error;
     }
 
-    showToast(editingId ? "Customer update ho gaya." : "Customer save ho gaya.");
+    showToast(editingId ? "Customer updated." : "Customer saved.");
     resetCustomerForm();
     await loadCustomers();
   } catch (error) {
     console.error("Customer save error:", error);
     customerError.textContent =
-      error.message || "Customer save nahi ho paya.";
+      error.message || "Couldn't save customer.";
   } finally {
     setButtonLoading(
       saveCustomerButton,
-      editingId ? "Customer update karein" : "Customer save karein",
+      editingId ? "Update customer" : "Save customer",
       false
     );
   }
 }
 
 async function handleCustomerDelete(entry) {
-  if (!window.confirm(`${entry.name} ko customer list se delete karein?`)) {
+  if (!window.confirm(`Delete ${entry.name} from your customer list?`)) {
     return;
   }
 
@@ -492,7 +493,7 @@ async function handleCustomerDelete(entry) {
 
   if (error) {
     console.error("Customer delete error:", error);
-    showToast("Customer delete nahi ho paya.");
+    showToast("Couldn't delete customer.");
     return;
   }
 
@@ -500,12 +501,12 @@ async function handleCustomerDelete(entry) {
     resetCustomerForm();
   }
 
-  showToast("Customer delete ho gaya.");
+  showToast("Customer deleted.");
   await loadCustomers();
 }
 
 function buildReminderMessage(entry) {
-  const businessName = appState.business?.business_name || "Hamara business";
+  const businessName = appState.business?.business_name || "our business";
   const followUpLabel = entry.follow_up_date
     ? new Date(`${entry.follow_up_date}T00:00:00`).toLocaleDateString("en-IN", {
         day: "numeric",
@@ -515,18 +516,18 @@ function buildReminderMessage(entry) {
     : null;
 
   if (entry.reminder_type === "appointment") {
-    return `Namaste ${entry.name}, ye ${businessName} se reminder hai${
-      followUpLabel ? ` — aapki appointment ${followUpLabel} ko hai` : ""
-    }. Kripya time par aa jaayein. Dhanyawad!`;
+    return `Hi ${entry.name}, this is a reminder from ${businessName}${
+      followUpLabel ? ` — your appointment is on ${followUpLabel}` : ""
+    }. Please arrive on time. Thank you!`;
   }
 
   if (entry.reminder_type === "payment") {
-    return `Namaste ${entry.name}, ye ${businessName} se friendly reminder hai${
-      followUpLabel ? ` — aapka payment ${followUpLabel} tak due hai` : ""
-    }. Kripya jaldi clear kar dein. Dhanyawad!`;
+    return `Hi ${entry.name}, this is a friendly reminder from ${businessName}${
+      followUpLabel ? ` — your payment is due by ${followUpLabel}` : ""
+    }. Please clear it soon. Thank you!`;
   }
 
-  return `Namaste ${entry.name}, ${businessName} ki taraf se aapke liye ek update hai. Please humse WhatsApp par judiye!`;
+  return `Hi ${entry.name}, ${businessName} has an update for you. Please reach out to us on WhatsApp!`;
 }
 
 function sendCustomerReminder(entry) {
@@ -541,6 +542,7 @@ function sendCustomerReminder(entry) {
 async function handleAuthSubmit(event) {
   event.preventDefault();
   authError.textContent = "";
+  authError.classList.remove("is-success");
 
   const email = authEmail.value.trim();
   const password = authPassword.value;
@@ -548,13 +550,13 @@ async function handleAuthSubmit(event) {
   const isSignup = appState.authMode === "signup";
 
   if (!email || !password || (isSignup && !fullName)) {
-    authError.textContent = "Please required details bhariye.";
+    authError.textContent = "Please fill in the required details.";
     return;
   }
 
   setButtonLoading(
     authSubmitButton,
-    isSignup ? "Account ban raha hai…" : "Login ho raha hai…",
+    isSignup ? "Creating account…" : "Logging in…",
     true
   );
 
@@ -575,15 +577,16 @@ async function handleAuthSubmit(event) {
       }
 
       if (!data.session) {
+        authError.classList.add("is-success");
         authError.textContent =
-          "Account ban gaya. Email verify karke Login karein.";
+          "Account created. Please verify your email, then log in.";
         return;
       }
 
       appState.user = data.session.user;
       closeModal(authModal);
       renderUserState();
-      showToast("Account ban gaya. Ab business details save karein.");
+      showToast("Account created. Now save your business details.");
       openBusinessSetup(false);
     } else {
       const { data, error } = await supabaseClient.auth.signInWithPassword({
@@ -607,7 +610,7 @@ async function handleAuthSubmit(event) {
   } catch (error) {
     console.error("Auth error:", error);
     authError.textContent =
-      error.message || "Login/Sign up nahi ho paya. Dobara try karein.";
+      error.message || "Login/Sign up failed. Please try again.";
   } finally {
     setButtonLoading(authSubmitButton, isSignup ? "Sign up" : "Login", false);
   }
@@ -618,7 +621,7 @@ async function handleBusinessSubmit(event) {
   businessError.textContent = "";
 
   if (!appState.user) {
-    businessError.textContent = "Pehle login karein.";
+    businessError.textContent = "Please log in first.";
     return;
   }
 
@@ -629,11 +632,11 @@ async function handleBusinessSubmit(event) {
   const preferredLanguage = document.getElementById("setupLanguage").value;
 
   if (!businessName || !category || !city || !whatsappNumber) {
-    businessError.textContent = "Sabhi required business details bhariye.";
+    businessError.textContent = "Please fill in all required business details.";
     return;
   }
 
-  setButtonLoading(saveBusinessButton, "Save ho raha hai…", true);
+  setButtonLoading(saveBusinessButton, "Saving…", true);
 
   try {
     const payload = {
@@ -659,14 +662,14 @@ async function handleBusinessSubmit(event) {
     renderUserState();
     applyBusinessToCampaignForm();
     closeModal(businessModal);
-    showToast("Business profile save ho gaya.");
+    showToast("Business profile saved.");
     await loadCustomers();
   } catch (error) {
     console.error("Business save error:", error);
     businessError.textContent =
-      error.message || "Business profile save nahi ho paya.";
+      error.message || "Couldn't save business profile.";
   } finally {
-    setButtonLoading(saveBusinessButton, "Business profile save karein", false);
+    setButtonLoading(saveBusinessButton, "Save business profile", false);
   }
 }
 
@@ -674,7 +677,7 @@ async function handleLogout() {
   const { error } = await supabaseClient.auth.signOut({ scope: "local" });
 
   if (error) {
-    showToast("Logout nahi ho paya.");
+    showToast("Couldn't log out.");
     return;
   }
 
@@ -683,7 +686,7 @@ async function handleLogout() {
   appState.customers = [];
   renderUserState();
   renderCustomers();
-  showToast("Aap logout ho gaye.");
+  showToast("You have been logged out.");
 }
 
 function getFormData() {
@@ -760,7 +763,7 @@ async function handleCampaignSubmit(event) {
   const data = getFormData();
 
   generateButton.disabled = true;
-  generateButton.querySelector("span").textContent = "Campaign ban raha hai…";
+  generateButton.querySelector("span").textContent = "Generating campaign…";
   showState(loadingState);
 
   try {
@@ -775,7 +778,7 @@ async function handleCampaignSubmit(event) {
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.detail || "Campaign generate nahi ho paya.");
+      throw new Error(result.detail || "Couldn't generate campaign.");
     }
 
     renderCampaign(data, result);
@@ -785,11 +788,11 @@ async function handleCampaignSubmit(event) {
     console.error("Campaign generation error:", error);
     showState(emptyState);
     formError.textContent =
-      error.message || "Network error. Backend check karein.";
+      error.message || "Network error. Please check the backend.";
   } finally {
     generateButton.disabled = false;
     generateButton.querySelector("span").textContent =
-      "✨ Campaign Generate Karein";
+      "✨ Generate Campaign";
   }
 }
 function setupFeatureSlider() {
@@ -885,9 +888,9 @@ function setupEventListeners() {
 
       try {
         await navigator.clipboard.writeText(text);
-        showToast("Copied! Ab WhatsApp ya Instagram me paste karein.");
+        showToast("Copied! Now paste it in WhatsApp or Instagram.");
       } catch {
-        showToast("Copy nahi hua. Text ko manually select karke copy karein.");
+        showToast("Couldn't copy. Please select the text manually and copy it.");
       }
     });
   });
@@ -896,7 +899,7 @@ function setupEventListeners() {
     const message = document.getElementById("whatsappMessage").textContent.trim();
 
     if (!message) {
-      showToast("Pehle campaign generate karein.");
+      showToast("Please generate a campaign first.");
       return;
     }
 

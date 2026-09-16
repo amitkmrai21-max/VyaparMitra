@@ -358,6 +358,10 @@ form > button:hover {
   font-weight: 700;
 }
 
+.form-error.is-success {
+  color: var(--green-dark);
+}
+
 .result-area {
   min-height: 650px;
   padding: 28px;
