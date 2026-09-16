@@ -16,12 +16,21 @@ app = FastAPI(
     description="Hindi/Urdu WhatsApp marketing assistant for local businesses",
 )
 
+ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        "ALLOWED_ORIGINS",
+        "https://amitkmrai21-max.github.io,http://localhost:3000,http://127.0.0.1:5500",
+    ).split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
 )
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
