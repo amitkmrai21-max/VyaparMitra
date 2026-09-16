@@ -30,6 +30,7 @@ const logoutButton = document.getElementById("logoutButton");
 const loginButton = document.getElementById("loginButton");
 const signupButton = document.getElementById("signupButton");
 const guestGate = document.getElementById("guestGate");
+const businessPendingState = document.getElementById("businessPendingState");
 const appContent = document.getElementById("appContent");
 const featureSlides = Array.from(document.querySelectorAll(".feature-slide"));
 const sliderDots = Array.from(document.querySelectorAll(".slider-dot"));
@@ -182,10 +183,12 @@ function openBusinessSetup(isEditing = false) {
 function renderUserState() {
   const loggedIn = Boolean(appState.user);
   const unlocked = loggedIn && Boolean(appState.business);
+  const pendingBusiness = loggedIn && !appState.business;
 
   guestActions.classList.toggle("hidden", loggedIn);
   userActions.classList.toggle("hidden", !loggedIn);
-  guestGate.classList.toggle("hidden", unlocked);
+  guestGate.classList.toggle("hidden", loggedIn);
+  businessPendingState.classList.toggle("hidden", !pendingBusiness);
   appContent.classList.toggle("hidden", !unlocked);
 
   if (loggedIn) {
