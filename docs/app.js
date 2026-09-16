@@ -32,6 +32,8 @@ const guestGate = document.getElementById("guestGate");
 const appContent = document.getElementById("appContent");
 const featureSlides = Array.from(document.querySelectorAll(".feature-slide"));
 const sliderDots = Array.from(document.querySelectorAll(".slider-dot"));
+const sliderPrevButton = document.getElementById("sliderPrevButton");
+const sliderNextButton = document.getElementById("sliderNextButton");
 
 const authModal = document.getElementById("authModal");
 const authForm = document.getElementById("authForm");
@@ -507,6 +509,20 @@ function setupFeatureSlider() {
       startAutoSlide();
     });
   });
+
+  if (sliderPrevButton) {
+    sliderPrevButton.addEventListener("click", () => {
+      showSlide(activeIndex - 1);
+      startAutoSlide();
+    });
+  }
+
+  if (sliderNextButton) {
+    sliderNextButton.addEventListener("click", () => {
+      showSlide(activeIndex + 1);
+      startAutoSlide();
+    });
+  }
 
   showSlide(0);
   startAutoSlide();
