@@ -1,5 +1,5 @@
 const SUPABASE_URL = "https://chpflrrfplyhfpmxiusm.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_sb_publishable_KEY_HERE";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_osahZExe194skn2otQ1i6A_oSI65354";
 const API_BASE_URL = "https://vyaparmitra-api.onrender.com";
 
 const supabaseClient = window.supabase.createClient(
