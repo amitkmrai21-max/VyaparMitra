@@ -1,10 +1,12 @@
 import json
 import os
+import time
+from collections import defaultdict, deque
 from typing import Literal
 
 import httpx
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -35,6 +37,31 @@ app.add_middleware(
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
+
+# Simple in-memory sliding-window rate limit per client IP. Each campaign
+# generation call costs real Groq quota/money, and CORS only stops browser
+# callers — it does nothing against a direct curl/script request — so this
+# is the actual backstop against abuse. Resets if the process restarts and
+# is per-worker only, which is fine at this app's scale.
+RATE_LIMIT_MAX_REQUESTS = int(os.getenv("RATE_LIMIT_MAX_REQUESTS", "10"))
+RATE_LIMIT_WINDOW_SECONDS = int(os.getenv("RATE_LIMIT_WINDOW_SECONDS", "60"))
+_rate_limit_buckets: dict[str, deque] = defaultdict(deque)
+
+
+def enforce_rate_limit(client_ip: str) -> None:
+    now = time.monotonic()
+    bucket = _rate_limit_buckets[client_ip]
+
+    while bucket and now - bucket[0] > RATE_LIMIT_WINDOW_SECONDS:
+        bucket.popleft()
+
+    if len(bucket) >= RATE_LIMIT_MAX_REQUESTS:
+        raise HTTPException(
+            status_code=429,
+            detail="Bahut zyada requests. Kripya thodi der baad try karein.",
+        )
+
+    bucket.append(now)
 
 
 class CampaignRequest(BaseModel):
@@ -151,7 +178,10 @@ def health():
 
 
 @app.post("/api/generate-campaign", response_model=CampaignResponse)
-async def generate_campaign(data: CampaignRequest):
+async def generate_campaign(data: CampaignRequest, request: Request):
+    client_ip = request.client.host if request.client else "unknown"
+    enforce_rate_limit(client_ip)
+
     prompt = build_prompt(data)
     result = await generate_with_groq(prompt)
 

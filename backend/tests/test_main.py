@@ -7,6 +7,14 @@ import main
 
 client = TestClient(main.app)
 
+
+@pytest.fixture(autouse=True)
+def _reset_rate_limit_buckets():
+    main._rate_limit_buckets.clear()
+    yield
+    main._rate_limit_buckets.clear()
+
+
 VALID_PAYLOAD = {
     "business_name": "Glow Beauty Salon",
     "category": "Salon",
@@ -124,6 +132,20 @@ def test_cors_allows_known_frontend_origin():
         response.headers.get("access-control-allow-origin")
         == "https://amitkmrai21-max.github.io"
     )
+
+
+def test_rate_limit_blocks_excess_requests(monkeypatch):
+    monkeypatch.setattr(main, "GROQ_API_KEY", "fake-key")
+    monkeypatch.setattr(main.httpx, "AsyncClient", _FakeAsyncClient)
+    monkeypatch.setattr(main, "RATE_LIMIT_MAX_REQUESTS", 2)
+
+    first = client.post("/api/generate-campaign", json=VALID_PAYLOAD)
+    second = client.post("/api/generate-campaign", json=VALID_PAYLOAD)
+    third = client.post("/api/generate-campaign", json=VALID_PAYLOAD)
+
+    assert first.status_code == 200
+    assert second.status_code == 200
+    assert third.status_code == 429
 
 
 def test_cors_blocks_unknown_origin():
