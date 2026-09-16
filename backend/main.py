@@ -13,7 +13,7 @@ load_dotenv()
 app = FastAPI(
     title="VyaparMitra API",
     version="0.1.0",
-    description="Hindi/Hinglish WhatsApp marketing assistant for local businesses",
+    description="Hindi/Urdu WhatsApp marketing assistant for local businesses",
 )
 
 app.add_middleware(
@@ -33,7 +33,7 @@ class CampaignRequest(BaseModel):
     category: str = Field(min_length=2, max_length=80)
     city: str = Field(min_length=2, max_length=80)
     phone: str = Field(min_length=5, max_length=30)
-    language: Literal["Hindi", "Hinglish", "English"] = "Hindi"
+    language: Literal["Hindi", "Urdu", "English"] = "Hindi"
     campaign_type: str = Field(min_length=2, max_length=100)
     offer: str = Field(min_length=3, max_length=500)
 
