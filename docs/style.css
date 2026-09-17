@@ -693,9 +693,14 @@ form > button:hover {
   align-items: start;
 }
 
-.customer-list-card {
+.customer-list-card,
+.history-list-card {
   min-height: 0;
   padding: 28px;
+}
+
+.history-section {
+  margin-top: 40px;
 }
 
 .customer-count {
@@ -916,6 +921,14 @@ form > button:hover {
 
   .hero {
     gap: 24px;
+  }
+
+  .action-row {
+    flex-wrap: wrap;
+  }
+
+  .action-button {
+    flex: 1 1 45%;
   }
 
   .account-notice {

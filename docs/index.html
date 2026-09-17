@@ -284,7 +284,7 @@
               </button>
             </div>
 
-            <article class="poster-card">
+            <article class="poster-card" id="posterCard">
               <p class="poster-brand" id="posterBusinessName">Your Business</p>
               <p class="poster-type" id="posterCampaignType">SPECIAL OFFER</p>
               <h2 id="posterHeadline">Your offer headline</h2>
@@ -304,6 +304,9 @@
               </button>
               <button class="action-button" type="button" data-copy-target="socialCaption">
                 Copy Social Caption
+              </button>
+              <button id="downloadPosterButton" class="action-button" type="button">
+                Download Poster
               </button>
             </div>
 
@@ -343,6 +346,29 @@
               <strong id="callToAction"></strong>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section class="history-section">
+        <div class="section-heading standalone">
+          <p class="eyebrow">CAMPAIGN HISTORY</p>
+          <h3>Your past campaigns</h3>
+          <p>Reopen a previous campaign to copy or share it again.</p>
+        </div>
+
+        <div class="result-area history-list-card">
+          <div class="result-topbar">
+            <div></div>
+            <span id="historyCount" class="customer-count">0 campaigns</span>
+          </div>
+
+          <div id="historyEmptyState" class="empty-state">
+            <div class="empty-icon">✦</div>
+            <h3>No campaigns yet</h3>
+            <p>Campaigns you generate above will show up here.</p>
+          </div>
+
+          <div id="historyListItems" class="customer-list"></div>
         </div>
       </section>
 
@@ -563,6 +589,7 @@
   <div id="toast" class="toast">Copied successfully</div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

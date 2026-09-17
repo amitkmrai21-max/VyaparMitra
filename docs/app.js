@@ -11,6 +11,7 @@ const appState = {
   user: null,
   business: null,
   customers: [],
+  campaignHistory: [],
   authMode: "login"
 };
 
@@ -22,6 +23,12 @@ const loadingState = document.getElementById("loadingState");
 const resultState = document.getElementById("resultState");
 const toast = document.getElementById("toast");
 const shareWhatsAppButton = document.getElementById("shareWhatsAppButton");
+const posterCard = document.getElementById("posterCard");
+const downloadPosterButton = document.getElementById("downloadPosterButton");
+
+const historyCount = document.getElementById("historyCount");
+const historyEmptyState = document.getElementById("historyEmptyState");
+const historyListItems = document.getElementById("historyListItems");
 
 const guestActions = document.getElementById("guestActions");
 const userActions = document.getElementById("userActions");
@@ -253,6 +260,7 @@ async function loadBusiness() {
   renderUserState();
   applyBusinessToCampaignForm();
   await loadCustomers();
+  await loadCampaignHistory();
 }
 
 function todayISODate() {
@@ -687,8 +695,10 @@ async function handleLogout() {
   appState.user = null;
   appState.business = null;
   appState.customers = [];
+  appState.campaignHistory = [];
   renderUserState();
   renderCustomers();
+  renderCampaignHistory();
   showToast("You have been logged out.");
 }
 
@@ -751,6 +761,172 @@ async function saveCampaignHistory(data, campaign) {
 
   if (error) {
     console.error("Campaign history save error:", error);
+    return;
+  }
+
+  await loadCampaignHistory();
+}
+
+async function loadCampaignHistory() {
+  if (!appState.user || !appState.business) {
+    appState.campaignHistory = [];
+    renderCampaignHistory();
+    return;
+  }
+
+  const { data, error } = await supabaseClient
+    .from("campaigns")
+    .select("*")
+    .eq("business_id", appState.business.id)
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  if (error) {
+    console.error("Campaign history load error:", error);
+    showToast("Couldn't load campaign history.");
+    return;
+  }
+
+  appState.campaignHistory = data || [];
+  renderCampaignHistory();
+}
+
+function historyRowMarkup(entry) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "customer-row";
+
+  const info = document.createElement("div");
+  info.className = "customer-row-info";
+
+  const headlineEl = document.createElement("strong");
+  headlineEl.textContent = entry.headline;
+  info.appendChild(headlineEl);
+
+  const meta = document.createElement("div");
+  meta.className = "customer-row-meta";
+
+  const typeBadge = document.createElement("span");
+  typeBadge.className = "customer-badge customer-badge-general";
+  typeBadge.textContent = entry.campaign_type;
+  meta.appendChild(typeBadge);
+
+  const languageSpan = document.createElement("span");
+  languageSpan.textContent = entry.language;
+  meta.appendChild(languageSpan);
+
+  if (entry.created_at) {
+    const dateSpan = document.createElement("span");
+    dateSpan.textContent = new Date(entry.created_at).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric"
+    });
+    meta.appendChild(dateSpan);
+  }
+
+  info.appendChild(meta);
+  wrapper.appendChild(info);
+
+  const actions = document.createElement("div");
+  actions.className = "customer-row-actions";
+
+  const viewButton = document.createElement("button");
+  viewButton.type = "button";
+  viewButton.className = "icon-button";
+  viewButton.textContent = "View";
+  viewButton.addEventListener("click", () => viewHistoryCampaign(entry));
+  actions.appendChild(viewButton);
+
+  const deleteButton = document.createElement("button");
+  deleteButton.type = "button";
+  deleteButton.className = "icon-button icon-button-danger";
+  deleteButton.textContent = "Delete";
+  deleteButton.addEventListener("click", () => deleteHistoryCampaign(entry));
+  actions.appendChild(deleteButton);
+
+  wrapper.appendChild(actions);
+  return wrapper;
+}
+
+function renderCampaignHistory() {
+  const history = appState.campaignHistory;
+
+  historyCount.textContent = `${history.length} campaign${
+    history.length === 1 ? "" : "s"
+  }`;
+  historyEmptyState.classList.toggle("hidden", history.length > 0);
+  historyListItems.innerHTML = "";
+
+  history.forEach((entry) => {
+    historyListItems.appendChild(historyRowMarkup(entry));
+  });
+}
+
+function viewHistoryCampaign(entry) {
+  const data = {
+    business_name: appState.business?.business_name || "",
+    campaign_type: entry.campaign_type,
+    city: appState.business?.city || "",
+    phone: appState.business?.whatsapp_number || ""
+  };
+
+  const campaign = {
+    headline: entry.headline,
+    whatsapp_message: entry.whatsapp_message,
+    status_text: entry.status_text,
+    social_caption: entry.social_caption,
+    hashtags: entry.hashtags || [],
+    call_to_action: entry.call_to_action
+  };
+
+  renderCampaign(data, campaign);
+  showState(resultState);
+  resultState.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+async function deleteHistoryCampaign(entry) {
+  if (!window.confirm("Delete this campaign from your history?")) {
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from("campaigns")
+    .delete()
+    .eq("id", entry.id);
+
+  if (error) {
+    console.error("Campaign history delete error:", error);
+    showToast("Couldn't delete campaign.");
+    return;
+  }
+
+  showToast("Campaign deleted.");
+  await loadCampaignHistory();
+}
+
+async function downloadPoster() {
+  if (typeof html2canvas !== "function") {
+    showToast("Poster download isn't available right now.");
+    return;
+  }
+
+  downloadPosterButton.disabled = true;
+
+  try {
+    const canvas = await html2canvas(posterCard, { backgroundColor: null, scale: 2 });
+    const link = document.createElement("a");
+    const businessSlug = (appState.business?.business_name || "campaign")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+    link.download = `${businessSlug || "campaign"}-poster.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  } catch (error) {
+    console.error("Poster download error:", error);
+    showToast("Couldn't download poster. Please try again.");
+  } finally {
+    downloadPosterButton.disabled = false;
   }
 }
 
@@ -909,6 +1085,8 @@ function setupEventListeners() {
     const whatsappShareUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappShareUrl, "_blank", "noopener,noreferrer");
   });
+
+  downloadPosterButton.addEventListener("click", downloadPoster);
 
   document.getElementById("newCampaignButton").addEventListener("click", () => {
     form.scrollIntoView({ behavior: "smooth", block: "start" });
