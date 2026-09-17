@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VyaparMitra — WhatsApp Growth Assistant</title>
   <meta
     name="description"
-    content="Hindi aur Urdu me local business ke liye WhatsApp messages, offers aur marketing campaigns banaiye."
+    content="Create WhatsApp messages, offers and marketing campaigns for your local business in Hindi and Urdu."
   />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -29,10 +29,10 @@
 
       <div class="hero-copy">
         <p class="pill">WhatsApp-first growth assistant</p>
-        <h2>Apne local business ke liye offers aur customer messages 1 minute me banaiye.</h2>
+        <h2>Create offers and customer messages for your local business in 1 minute.</h2>
         <p>
-          Hindi, Urdu ya English me branded campaigns banaiye—WhatsApp,
-          Status aur social media ke liye.
+          Create branded campaigns in Hindi, Urdu or English — for
+          WhatsApp, Status and social media.
         </p>
       </div>
     </section>
@@ -42,7 +42,7 @@
         <div class="section-heading">
           <p class="eyebrow">STEP 1</p>
           <h3>Business details</h3>
-          <p>Campaign generate karne ke liye apne business ki details bharein.</p>
+          <p>Fill in your business details to generate a campaign.</p>
         </div>
 
         <form id="campaignForm">
@@ -120,13 +120,13 @@
             <textarea
               id="offer"
               rows="5"
-              placeholder="e.g. Bridal makeup package par 15% discount. Wedding season ke liye limited bookings."
+              placeholder="e.g. 15% discount on bridal makeup package. Limited bookings for wedding season."
               required
             ></textarea>
           </label>
 
           <button id="generateButton" type="submit">
-            <span>✨ Campaign Generate Karein</span>
+            <span>✨ Generate Campaign</span>
           </button>
 
           <p id="formError" class="form-error" role="alert"></p>
@@ -136,14 +136,14 @@
       <div class="result-area">
         <div id="emptyState" class="empty-state">
           <div class="empty-icon">✦</div>
-          <h3>Aapka campaign yahan dikhega</h3>
-          <p>Left side details bhariye aur VyaparMitra campaign banayega.</p>
+          <h3>Your campaign will appear here</h3>
+          <p>Fill in the details on the left and VyaparMitra will create your campaign.</p>
         </div>
 
         <div id="loadingState" class="loading-state hidden">
           <div class="loader"></div>
-          <h3>Campaign ban raha hai…</h3>
-          <p>Hindi marketing copy aur WhatsApp message taiyar kiya ja raha hai.</p>
+          <h3>Generating your campaign…</h3>
+          <p>Your marketing copy and WhatsApp message are being prepared.</p>
         </div>
 
         <div id="resultState" class="hidden">
@@ -153,17 +153,17 @@
               <h3>Ready campaign</h3>
             </div>
             <button id="newCampaignButton" class="secondary-button" type="button">
-              + Naya campaign
+              + New campaign
             </button>
           </div>
 
           <article class="poster-card">
             <p class="poster-brand" id="posterBusinessName">Your Business</p>
             <p class="poster-type" id="posterCampaignType">SPECIAL OFFER</p>
-            <h2 id="posterHeadline">Aapka offer headline</h2>
+            <h2 id="posterHeadline">Your offer headline</h2>
             <p id="posterCity">Your City</p>
             <div class="poster-footer">
-              <span>WhatsApp karein</span>
+              <span>Message on WhatsApp</span>
               <strong id="posterPhone">0000000000</strong>
             </div>
           </article>
@@ -174,7 +174,7 @@
   </button>
 
   <button id="shareWhatsAppButton" class="action-button whatsapp-button" type="button">
-    WhatsApp me Share Karein
+    Share on WhatsApp
   </button>
 
   <button class="action-button" type="button" data-copy-target="socialCaption">

@@ -70,7 +70,7 @@ form.addEventListener("submit", async (event) => {
   const data = getFormData();
 
   generateButton.disabled = true;
-  generateButton.querySelector("span").textContent = "Campaign ban raha hai…";
+  generateButton.querySelector("span").textContent = "Generating campaign…";
   showState(loadingState);
 
   try {
@@ -85,7 +85,7 @@ form.addEventListener("submit", async (event) => {
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.detail || "Campaign generate nahi ho paya.");
+      throw new Error(result.detail || "Couldn't generate campaign.");
     }
 
     renderCampaign(data, result);
@@ -93,11 +93,11 @@ form.addEventListener("submit", async (event) => {
   } catch (error) {
     showState(emptyState);
     formError.textContent =
-      error.message || "Network error. Backend check karein.";
+      error.message || "Network error. Please check the backend.";
   } finally {
     generateButton.disabled = false;
     generateButton.querySelector("span").textContent =
-      "✨ Campaign Generate Karein";
+      "✨ Generate Campaign";
   }
 });
 
@@ -108,9 +108,9 @@ document.querySelectorAll("[data-copy-target]").forEach((button) => {
 
     try {
       await navigator.clipboard.writeText(text);
-      showToast("Copied! Ab WhatsApp ya Instagram me paste karein.");
+      showToast("Copied! Now paste it in WhatsApp or Instagram.");
     } catch {
-      showToast("Copy nahi hua. Text ko manually select karke copy karein.");
+      showToast("Couldn't copy. Please select the text manually and copy it.");
     }
   });
 });
@@ -119,7 +119,7 @@ shareWhatsAppButton.addEventListener("click", () => {
   const message = document.getElementById("whatsappMessage").textContent.trim();
 
   if (!message) {
-    showToast("Pehle campaign generate karein.");
+    showToast("Please generate a campaign first.");
     return;
   }
 

@@ -58,7 +58,7 @@ def enforce_rate_limit(client_ip: str) -> None:
     if len(bucket) >= RATE_LIMIT_MAX_REQUESTS:
         raise HTTPException(
             status_code=429,
-            detail="Bahut zyada requests. Kripya thodi der baad try karein.",
+            detail="Too many requests. Please try again in a little while.",
         )
 
     bucket.append(now)
