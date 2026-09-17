@@ -30,6 +30,12 @@ const historyCount = document.getElementById("historyCount");
 const historyEmptyState = document.getElementById("historyEmptyState");
 const historyListItems = document.getElementById("historyListItems");
 
+const statsBar = document.getElementById("statsBar");
+const statCampaigns = document.getElementById("statCampaigns");
+const statCustomers = document.getElementById("statCustomers");
+const statDueToday = document.getElementById("statDueToday");
+const exportCustomersButton = document.getElementById("exportCustomersButton");
+
 const guestActions = document.getElementById("guestActions");
 const userActions = document.getElementById("userActions");
 const userGreeting = document.getElementById("userGreeting");
@@ -209,6 +215,7 @@ function renderUserState() {
   }
 
   businessBanner.classList.toggle("hidden", !unlocked);
+  statsBar.classList.toggle("hidden", !unlocked);
 
   if (unlocked) {
     savedBusinessName.textContent = appState.business.business_name;
@@ -261,6 +268,7 @@ async function loadBusiness() {
   applyBusinessToCampaignForm();
   await loadCustomers();
   await loadCampaignHistory();
+  await loadStats();
 }
 
 function todayISODate() {
@@ -406,6 +414,47 @@ function renderCustomers() {
   });
 }
 
+function escapeCsvField(field) {
+  const str = String(field ?? "");
+  if (/[",\n]/.test(str)) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
+}
+
+function exportCustomersCSV() {
+  if (!appState.customers.length) {
+    showToast("No customers to export yet.");
+    return;
+  }
+
+  const header = ["Name", "Phone", "Follow-up Type", "Follow-up Date", "Notes"];
+  const rows = appState.customers.map((entry) => [
+    entry.name,
+    entry.phone,
+    REMINDER_TYPE_LABELS[entry.reminder_type] || "General",
+    entry.follow_up_date || "",
+    (entry.notes || "").replace(/\r?\n/g, " ")
+  ]);
+
+  const csvContent = [header, ...rows]
+    .map((row) => row.map(escapeCsvField).join(","))
+    .join("\r\n");
+
+  const businessSlug = (appState.business?.business_name || "customers")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${businessSlug || "customers"}-customers.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 function resetCustomerForm() {
   customerForm.reset();
   customerId.value = "";
@@ -479,6 +528,7 @@ async function handleCustomerSubmit(event) {
     showToast(editingId ? "Customer updated." : "Customer saved.");
     resetCustomerForm();
     await loadCustomers();
+    await loadStats();
   } catch (error) {
     console.error("Customer save error:", error);
     customerError.textContent =
@@ -514,6 +564,7 @@ async function handleCustomerDelete(entry) {
 
   showToast("Customer deleted.");
   await loadCustomers();
+  await loadStats();
 }
 
 function buildReminderMessage(entry) {
@@ -675,6 +726,8 @@ async function handleBusinessSubmit(event) {
     closeModal(businessModal);
     showToast("Business profile saved.");
     await loadCustomers();
+    await loadCampaignHistory();
+    await loadStats();
   } catch (error) {
     console.error("Business save error:", error);
     businessError.textContent =
@@ -699,6 +752,7 @@ async function handleLogout() {
   renderUserState();
   renderCustomers();
   renderCampaignHistory();
+  await loadStats();
   showToast("You have been logged out.");
 }
 
@@ -765,6 +819,7 @@ async function saveCampaignHistory(data, campaign) {
   }
 
   await loadCampaignHistory();
+  await loadStats();
 }
 
 async function loadCampaignHistory() {
@@ -789,6 +844,33 @@ async function loadCampaignHistory() {
 
   appState.campaignHistory = data || [];
   renderCampaignHistory();
+}
+
+async function loadStats() {
+  if (!appState.user || !appState.business) {
+    statCampaigns.textContent = "0";
+    statCustomers.textContent = "0";
+    statDueToday.textContent = "0";
+    return;
+  }
+
+  const { count, error } = await supabaseClient
+    .from("campaigns")
+    .select("id", { count: "exact", head: true })
+    .eq("business_id", appState.business.id);
+
+  if (error) {
+    console.error("Stats load error:", error);
+  }
+
+  const today = todayISODate();
+  const dueToday = appState.customers.filter(
+    (entry) => entry.follow_up_date && entry.follow_up_date <= today
+  ).length;
+
+  statCampaigns.textContent = String(count ?? 0);
+  statCustomers.textContent = String(appState.customers.length);
+  statDueToday.textContent = String(dueToday);
 }
 
 function historyRowMarkup(entry) {
@@ -902,6 +984,7 @@ async function deleteHistoryCampaign(entry) {
 
   showToast("Campaign deleted.");
   await loadCampaignHistory();
+  await loadStats();
 }
 
 async function downloadPoster() {
@@ -1044,6 +1127,7 @@ function setupEventListeners() {
 
   customerForm.addEventListener("submit", handleCustomerSubmit);
   cancelCustomerEditButton.addEventListener("click", resetCustomerForm);
+  exportCustomersButton.addEventListener("click", exportCustomersCSV);
 
   document.querySelectorAll("[data-close-modal]").forEach((button) => {
     button.addEventListener("click", () => closeModal(authModal));

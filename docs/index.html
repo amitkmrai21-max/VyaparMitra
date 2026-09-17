@@ -164,6 +164,21 @@
         </button>
       </section>
 
+      <section id="statsBar" class="stats-bar hidden">
+        <div class="stat-tile">
+          <span class="stat-value" id="statCampaigns">0</span>
+          <span class="stat-label">Campaigns generated</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-value" id="statCustomers">0</span>
+          <span class="stat-label">Customers saved</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-value" id="statDueToday">0</span>
+          <span class="stat-label">Follow-ups due today</span>
+        </div>
+      </section>
+
       <section class="workspace">
         <div class="form-card">
           <div class="section-heading">
@@ -468,7 +483,12 @@
                 <p class="eyebrow">CUSTOMER LIST</p>
                 <h3>Your customers</h3>
               </div>
-              <span id="customerCount" class="customer-count">0 customers</span>
+              <div class="result-topbar-actions">
+                <button id="exportCustomersButton" class="secondary-button" type="button">
+                  Export CSV
+                </button>
+                <span id="customerCount" class="customer-count">0 customers</span>
+              </div>
             </div>
 
             <div id="customerEmptyState" class="empty-state">
