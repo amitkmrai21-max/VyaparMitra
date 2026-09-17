@@ -38,6 +38,9 @@ these tables to already exist:
 - `customers` — see `supabase/customers_table.sql` for the schema and RLS
   policy; run it once in the Supabase SQL editor before using the customer
   manager
+- `businesses.subscription_expires_at` — see `supabase/add_subscription_column.sql`;
+  run it once before subscriptions will work. `NULL` or a past timestamp
+  means the account is on the paywall (see Subscriptions below).
 
 ## Backend setup (`backend/`)
 
@@ -55,7 +58,30 @@ Environment variables (see `backend/.env.example`):
 | `GROQ_API_KEY` | Required. Groq API key used to generate campaign copy. |
 | `GROQ_MODEL` | Groq model id. Defaults to `llama-3.1-8b-instant`. |
 | `ALLOWED_ORIGINS` | Comma-separated CORS allowlist. Defaults to the live site + local dev ports. |
-| `RATE_LIMIT_MAX_REQUESTS` / `RATE_LIMIT_WINDOW_SECONDS` | Per-IP rate limit on `/api/generate-campaign` (each call costs Groq quota). |
+| `RATE_LIMIT_MAX_REQUESTS` / `RATE_LIMIT_WINDOW_SECONDS` | Per-IP rate limit on payment/generation endpoints. |
+| `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` | Required for subscriptions. From the Razorpay dashboard after signing up and completing KYC at razorpay.com. |
+| `SUBSCRIPTION_AMOUNT_PAISE` / `SUBSCRIPTION_PERIOD_DAYS` | Subscription price (in paise) and how many days it unlocks per payment. Default ₹199 / 30 days. |
+| `SUPABASE_URL` / `SUPABASE_ANON_KEY` | Same project/anon key as the frontend — used to extend *the paying user's own* subscription row after a verified payment. Never put a service-role key here. |
+
+## Subscriptions
+
+Feature access (campaigns, customer manager, history) is gated behind a
+₹199/month subscription once a business profile is saved. The flow:
+
+1. Frontend calls `POST /api/create-order` to get a Razorpay order, then
+   opens Razorpay Checkout (loaded from `checkout.razorpay.com`).
+2. On success, the frontend sends the payment id/order id/signature plus the
+   user's own Supabase access token to `POST /api/verify-payment`.
+3. The backend verifies the signature with `RAZORPAY_KEY_SECRET` (so a
+   request can never fake "payment succeeded"), then extends
+   `businesses.subscription_expires_at` by `SUBSCRIPTION_PERIOD_DAYS` — using
+   the *user's own* Supabase session, not a service-role key, so a payment
+   can only ever unlock the paying user's own account.
+
+There's no auto-renewal: a lapsed subscription re-locks the account and
+prompts the user to pay again. Setting this up requires a Razorpay account
+(signup + KYC at razorpay.com) — this can't be done for you, only by the
+account owner.
 
 Run the tests:
 

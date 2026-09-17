@@ -1106,6 +1106,34 @@ form > button:hover {
   line-height: 1.7;
 }
 
+.subscribe-button {
+  border: 0;
+  border-radius: 13px;
+  background: var(--green);
+  color: #ffffff;
+  padding: 14px 24px;
+  font-size: 15px;
+  font-weight: 800;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.subscribe-button:hover {
+  background: var(--green-dark);
+  transform: translateY(-1px);
+}
+
+.subscription-status {
+  display: block;
+  margin-top: 4px;
+  color: var(--green-dark);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.subscription-status.is-inactive {
+  color: var(--danger);
+}
+
 .feature-slider {
   position: relative;
   overflow: hidden;

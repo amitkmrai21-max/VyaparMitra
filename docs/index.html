@@ -131,6 +131,22 @@
       </div>
     </section>
 
+    <!-- Logged in with a business profile, but no active subscription. -->
+    <section id="subscriptionGate" class="guest-gate hidden">
+      <div class="guest-gate-card">
+        <p class="eyebrow">SUBSCRIPTION REQUIRED</p>
+        <h1>Subscribe to unlock VyaparMitra.</h1>
+        <p>
+          Get unlimited AI campaigns, the customer manager and WhatsApp
+          follow-up reminders for ₹199/month. Pay securely by UPI or card.
+        </p>
+        <button id="subscribeButton" type="button" class="subscribe-button">
+          <span>Pay ₹199 with UPI / Card</span>
+        </button>
+        <p id="subscriptionError" class="form-error" role="alert"></p>
+      </div>
+    </section>
+
     <!-- Only shown after Login + business-profile setup. -->
     <div id="appContent" class="hidden">
       <section class="hero">
@@ -158,6 +174,7 @@
           <p class="eyebrow">YOUR BUSINESS PROFILE</p>
           <strong id="savedBusinessName"></strong>
           <span id="savedBusinessInfo"></span>
+          <span id="subscriptionStatus" class="subscription-status"></span>
         </div>
         <button id="editBusinessButton" class="secondary-button" type="button">
           Edit business details
@@ -610,6 +627,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

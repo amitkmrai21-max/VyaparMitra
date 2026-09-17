@@ -73,6 +73,11 @@ const editBusinessButton = document.getElementById("editBusinessButton");
 const businessBanner = document.getElementById("businessBanner");
 const savedBusinessName = document.getElementById("savedBusinessName");
 const savedBusinessInfo = document.getElementById("savedBusinessInfo");
+const subscriptionStatus = document.getElementById("subscriptionStatus");
+
+const subscriptionGate = document.getElementById("subscriptionGate");
+const subscribeButton = document.getElementById("subscribeButton");
+const subscriptionError = document.getElementById("subscriptionError");
 
 const customerForm = document.getElementById("customerForm");
 const customerId = document.getElementById("customerId");
@@ -193,15 +198,27 @@ function openBusinessSetup(isEditing = false) {
   openModal(businessModal);
 }
 
+function isSubscriptionActive(business) {
+  if (!business?.subscription_expires_at) {
+    return false;
+  }
+
+  return new Date(business.subscription_expires_at) > new Date();
+}
+
 function renderUserState() {
   const loggedIn = Boolean(appState.user);
-  const unlocked = loggedIn && Boolean(appState.business);
+  const hasBusiness = loggedIn && Boolean(appState.business);
+  const subscribed = hasBusiness && isSubscriptionActive(appState.business);
   const pendingBusiness = loggedIn && !appState.business;
+  const pendingSubscription = hasBusiness && !subscribed;
+  const unlocked = subscribed;
 
   guestActions.classList.toggle("hidden", loggedIn);
   userActions.classList.toggle("hidden", !loggedIn);
   guestGate.classList.toggle("hidden", loggedIn);
   businessPendingState.classList.toggle("hidden", !pendingBusiness);
+  subscriptionGate.classList.toggle("hidden", !pendingSubscription);
   appContent.classList.toggle("hidden", !unlocked);
 
   if (loggedIn) {
@@ -214,10 +231,10 @@ function renderUserState() {
     userGreeting.textContent = "";
   }
 
-  businessBanner.classList.toggle("hidden", !unlocked);
+  businessBanner.classList.toggle("hidden", !hasBusiness);
   statsBar.classList.toggle("hidden", !unlocked);
 
-  if (unlocked) {
+  if (hasBusiness) {
     savedBusinessName.textContent = appState.business.business_name;
     savedBusinessInfo.textContent = [
       appState.business.category,
@@ -226,6 +243,17 @@ function renderUserState() {
     ]
       .filter(Boolean)
       .join(" · ");
+
+    subscriptionStatus.classList.toggle("is-inactive", !subscribed);
+    subscriptionStatus.textContent = subscribed
+      ? `Subscription active until ${new Date(
+          appState.business.subscription_expires_at
+        ).toLocaleDateString("en-IN", {
+          day: "numeric",
+          month: "short",
+          year: "numeric"
+        })}`
+      : "Subscription inactive — subscribe below to unlock features";
   }
 }
 
@@ -873,6 +901,93 @@ async function loadStats() {
   statDueToday.textContent = String(dueToday);
 }
 
+async function verifyPayment(razorpayResponse, accessToken) {
+  try {
+    const verifyResponse = await fetch(`${API_BASE_URL}/api/verify-payment`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        razorpay_order_id: razorpayResponse.razorpay_order_id,
+        razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+        razorpay_signature: razorpayResponse.razorpay_signature,
+        access_token: accessToken
+      })
+    });
+
+    const result = await verifyResponse.json();
+
+    if (!verifyResponse.ok) {
+      throw new Error(result.detail || "Payment verification failed.");
+    }
+
+    showToast("Subscription active! Enjoy VyaparMitra.");
+    await loadBusiness();
+  } catch (error) {
+    console.error("Payment verification error:", error);
+    subscriptionError.textContent =
+      error.message ||
+      "Payment succeeded, but we couldn't verify it. Please contact support.";
+  } finally {
+    setButtonLoading(subscribeButton, "Pay ₹199 with UPI / Card", false);
+  }
+}
+
+async function handleSubscribe() {
+  subscriptionError.textContent = "";
+
+  if (typeof Razorpay !== "function") {
+    subscriptionError.textContent =
+      "Payment isn't available right now. Please try again later.";
+    return;
+  }
+
+  setButtonLoading(subscribeButton, "Opening payment…", true);
+
+  try {
+    const orderResponse = await fetch(`${API_BASE_URL}/api/create-order`, {
+      method: "POST"
+    });
+    const order = await orderResponse.json();
+
+    if (!orderResponse.ok) {
+      throw new Error(order.detail || "Couldn't start payment.");
+    }
+
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
+
+    const checkout = new Razorpay({
+      key: order.key_id,
+      amount: order.amount,
+      currency: order.currency,
+      order_id: order.order_id,
+      name: "VyaparMitra",
+      description: "Monthly subscription",
+      prefill: {
+        email: appState.user?.email || "",
+        contact: appState.business?.whatsapp_number || ""
+      },
+      theme: {
+        color: "#1c8b5d"
+      },
+      handler: (response) => verifyPayment(response, accessToken),
+      modal: {
+        ondismiss: () => {
+          setButtonLoading(subscribeButton, "Pay ₹199 with UPI / Card", false);
+        }
+      }
+    });
+
+    checkout.open();
+  } catch (error) {
+    console.error("Subscribe error:", error);
+    subscriptionError.textContent = error.message || "Couldn't start payment.";
+    setButtonLoading(subscribeButton, "Pay ₹199 with UPI / Card", false);
+  }
+}
+
 function historyRowMarkup(entry) {
   const wrapper = document.createElement("div");
   wrapper.className = "customer-row";
@@ -1128,6 +1243,7 @@ function setupEventListeners() {
   customerForm.addEventListener("submit", handleCustomerSubmit);
   cancelCustomerEditButton.addEventListener("click", resetCustomerForm);
   exportCustomersButton.addEventListener("click", exportCustomersCSV);
+  subscribeButton.addEventListener("click", handleSubscribe);
 
   document.querySelectorAll("[data-close-modal]").forEach((button) => {
     button.addEventListener("click", () => closeModal(authModal));
