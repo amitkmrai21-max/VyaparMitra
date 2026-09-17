@@ -1,3 +1,5 @@
+import hashlib
+import hmac
 import json
 import os
 import time
@@ -6,7 +8,6 @@ from datetime import datetime, timedelta, timezone
 from typing import Literal
 
 import httpx
-import razorpay
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -219,14 +220,44 @@ class VerifyPaymentResponse(BaseModel):
     subscription_expires_at: str
 
 
-def get_razorpay_client() -> razorpay.Client:
+def require_razorpay_configured() -> None:
     if not RAZORPAY_KEY_ID or not RAZORPAY_KEY_SECRET:
         raise HTTPException(
             status_code=500,
             detail="Payments are not configured on the server yet.",
         )
 
-    return razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+
+async def create_razorpay_order() -> dict:
+    require_razorpay_configured()
+
+    async with httpx.AsyncClient(
+        timeout=20, auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET)
+    ) as client:
+        response = await client.post(
+            "https://api.razorpay.com/v1/orders",
+            json={
+                "amount": SUBSCRIPTION_AMOUNT_PAISE,
+                "currency": "INR",
+                "payment_capture": 1,
+            },
+        )
+
+    if response.status_code >= 400:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Could not create payment order: {response.text}",
+        )
+
+    return response.json()
+
+
+def verify_razorpay_signature(order_id: str, payment_id: str, signature: str) -> bool:
+    payload = f"{order_id}|{payment_id}".encode()
+    expected_signature = hmac.new(
+        RAZORPAY_KEY_SECRET.encode(), payload, hashlib.sha256
+    ).hexdigest()
+    return hmac.compare_digest(expected_signature, signature)
 
 
 async def fetch_business_for_user(access_token: str) -> dict:
@@ -290,14 +321,7 @@ async def create_order(request: Request):
     client_ip = request.client.host if request.client else "unknown"
     enforce_rate_limit(client_ip)
 
-    client = get_razorpay_client()
-    order = client.order.create(
-        {
-            "amount": SUBSCRIPTION_AMOUNT_PAISE,
-            "currency": "INR",
-            "payment_capture": 1,
-        }
-    )
+    order = await create_razorpay_order()
 
     return CreateOrderResponse(
         order_id=order["id"],
@@ -312,21 +336,19 @@ async def verify_payment(payload: VerifyPaymentRequest, request: Request):
     client_ip = request.client.host if request.client else "unknown"
     enforce_rate_limit(client_ip)
 
-    client = get_razorpay_client()
+    require_razorpay_configured()
 
-    try:
-        client.utility.verify_payment_signature(
-            {
-                "razorpay_order_id": payload.razorpay_order_id,
-                "razorpay_payment_id": payload.razorpay_payment_id,
-                "razorpay_signature": payload.razorpay_signature,
-            }
-        )
-    except razorpay.errors.SignatureVerificationError as error:
+    signature_valid = verify_razorpay_signature(
+        payload.razorpay_order_id,
+        payload.razorpay_payment_id,
+        payload.razorpay_signature,
+    )
+
+    if not signature_valid:
         raise HTTPException(
             status_code=400,
             detail="Payment could not be verified.",
-        ) from error
+        )
 
     business = await fetch_business_for_user(payload.access_token)
 

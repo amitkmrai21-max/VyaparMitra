@@ -1,3 +1,5 @@
+import hashlib
+import hmac
 import json
 
 import pytest
@@ -159,38 +161,50 @@ def test_cors_blocks_unknown_origin():
     assert "access-control-allow-origin" not in response.headers
 
 
-VALID_PAYMENT_PAYLOAD = {
-    "razorpay_order_id": "order_fake123",
-    "razorpay_payment_id": "pay_fake123",
-    "razorpay_signature": "sig_fake123",
-    "access_token": "user-jwt-token",
-}
+TEST_RAZORPAY_SECRET = "fake_secret"
 
 
-class _FakeRazorpayOrderApi:
-    def create(self, data):
-        return {"id": "order_fake123"}
+def _make_payment_payload(order_id="order_fake123", payment_id="pay_fake123", signature=None):
+    if signature is None:
+        signature = hmac.new(
+            TEST_RAZORPAY_SECRET.encode(),
+            f"{order_id}|{payment_id}".encode(),
+            hashlib.sha256,
+        ).hexdigest()
+
+    return {
+        "razorpay_order_id": order_id,
+        "razorpay_payment_id": payment_id,
+        "razorpay_signature": signature,
+        "access_token": "user-jwt-token",
+    }
 
 
-class _FakeRazorpayUtilityApi:
-    should_fail = False
-
-    def verify_payment_signature(self, data):
-        if self.should_fail:
-            raise main.razorpay.errors.SignatureVerificationError("bad signature")
-        return True
+VALID_PAYMENT_PAYLOAD = _make_payment_payload()
 
 
-class _FakeRazorpayClient:
+class _FakeHttpResponse:
+    def __init__(self, status_code, payload, text=""):
+        self.status_code = status_code
+        self._payload = payload
+        self.text = text
+
+    def json(self):
+        return self._payload
+
+
+class _FakeRazorpayOrderAsyncClient:
     def __init__(self, *args, **kwargs):
-        self.order = _FakeRazorpayOrderApi()
-        self.utility = _FakeRazorpayUtilityApi()
+        pass
 
+    async def __aenter__(self):
+        return self
 
-class _FakeRazorpayClientBadSignature(_FakeRazorpayClient):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.utility.should_fail = True
+    async def __aexit__(self, *args):
+        return False
+
+    async def post(self, url, json=None):
+        return _FakeHttpResponse(200, {"id": "order_fake123"})
 
 
 def test_create_order_without_keys_returns_500(monkeypatch):
@@ -204,7 +218,7 @@ def test_create_order_without_keys_returns_500(monkeypatch):
 def test_create_order_success(monkeypatch):
     monkeypatch.setattr(main, "RAZORPAY_KEY_ID", "rzp_test_fake")
     monkeypatch.setattr(main, "RAZORPAY_KEY_SECRET", "fake_secret")
-    monkeypatch.setattr(main.razorpay, "Client", _FakeRazorpayClient)
+    monkeypatch.setattr(main.httpx, "AsyncClient", _FakeRazorpayOrderAsyncClient)
 
     response = client.post("/api/create-order")
     assert response.status_code == 200
@@ -216,10 +230,10 @@ def test_create_order_success(monkeypatch):
 
 def test_verify_payment_invalid_signature_returns_400(monkeypatch):
     monkeypatch.setattr(main, "RAZORPAY_KEY_ID", "rzp_test_fake")
-    monkeypatch.setattr(main, "RAZORPAY_KEY_SECRET", "fake_secret")
-    monkeypatch.setattr(main.razorpay, "Client", _FakeRazorpayClientBadSignature)
+    monkeypatch.setattr(main, "RAZORPAY_KEY_SECRET", TEST_RAZORPAY_SECRET)
 
-    response = client.post("/api/verify-payment", json=VALID_PAYMENT_PAYLOAD)
+    bad_payload = _make_payment_payload(signature="not-the-right-signature")
+    response = client.post("/api/verify-payment", json=bad_payload)
     assert response.status_code == 400
 
 
@@ -257,10 +271,9 @@ class _FakeSupabaseAsyncClientNoBusiness(_FakeSupabaseAsyncClient):
 
 def test_verify_payment_success(monkeypatch):
     monkeypatch.setattr(main, "RAZORPAY_KEY_ID", "rzp_test_fake")
-    monkeypatch.setattr(main, "RAZORPAY_KEY_SECRET", "fake_secret")
+    monkeypatch.setattr(main, "RAZORPAY_KEY_SECRET", TEST_RAZORPAY_SECRET)
     monkeypatch.setattr(main, "SUPABASE_URL", "https://example.supabase.co")
     monkeypatch.setattr(main, "SUPABASE_ANON_KEY", "anon-key")
-    monkeypatch.setattr(main.razorpay, "Client", _FakeRazorpayClient)
     monkeypatch.setattr(main.httpx, "AsyncClient", _FakeSupabaseAsyncClient)
 
     response = client.post("/api/verify-payment", json=VALID_PAYMENT_PAYLOAD)
@@ -272,10 +285,9 @@ def test_verify_payment_success(monkeypatch):
 
 def test_verify_payment_no_business_returns_404(monkeypatch):
     monkeypatch.setattr(main, "RAZORPAY_KEY_ID", "rzp_test_fake")
-    monkeypatch.setattr(main, "RAZORPAY_KEY_SECRET", "fake_secret")
+    monkeypatch.setattr(main, "RAZORPAY_KEY_SECRET", TEST_RAZORPAY_SECRET)
     monkeypatch.setattr(main, "SUPABASE_URL", "https://example.supabase.co")
     monkeypatch.setattr(main, "SUPABASE_ANON_KEY", "anon-key")
-    monkeypatch.setattr(main.razorpay, "Client", _FakeRazorpayClient)
     monkeypatch.setattr(main.httpx, "AsyncClient", _FakeSupabaseAsyncClientNoBusiness)
 
     response = client.post("/api/verify-payment", json=VALID_PAYMENT_PAYLOAD)
